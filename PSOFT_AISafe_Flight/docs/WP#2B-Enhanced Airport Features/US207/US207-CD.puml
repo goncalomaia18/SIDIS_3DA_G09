@@ -1,0 +1,44 @@
+@startuml
+title US207-CD
+skinparam classAttributeIconSize 0
+
+class AirportController {
+    + updateAirportImage(iataCode: String, file: MultipartFile): ResponseEntity<EntityModel<AirportViewDTO>>
+}
+
+class AirportService {
+    + updateAirportImage(iataCode: String, file: MultipartFile): AirportViewDTO
+}
+
+interface AirportRepository <<Repository>> {
+    + findByIataCodeString(iataCode: String): Optional<Airport>
+    + save(airport: Airport): Airport
+}
+
+interface MultipartFile <<Interface>> {
+    + transferTo(dest: File)
+}
+
+class Airport <<Entity>> <<Root>> {
+    - imageUrl: String
+    + updateImage(newImageUrl: String)
+}
+
+class AirportViewDTO <<DTO>> {
+    + iataCode: String
+    + name: String
+    + imageUrl: String
+    + facilities: List<FacilityDTO>
+}
+
+AirportController ..> MultipartFile : consumes >
+AirportController ..> AirportViewDTO : produces >
+AirportController --> AirportService : uses >
+
+AirportService ..> AirportViewDTO : creates >
+AirportService --> AirportRepository : uses >
+AirportService ..> MultipartFile : processes >
+AirportService --> Airport : updates >
+
+AirportRepository --> Airport : persists >
+@enduml

@@ -1,0 +1,59 @@
+@startuml
+skinparam style strictuml
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+title Domain Model - US110
+hide empty members
+
+package "Route Aggregate" {
+    class Route <<Entity>> <<Root>> {
+        - pk : Long
+        - version : Long
+        - estimatedFlightTime : Integer
+        - minimumRange : Double
+        - minimumCapacity : Integer
+    }
+
+    class RouteId <<Value Object>> {
+        - id : String
+    }
+
+    enum RouteStatus <<Enumeration>> {
+        ACTIVE
+        INACTIVE
+    }
+
+    Route "1" *-- "1" RouteId : identified by >
+    Route "1" --> "1" RouteStatus : initialized as >
+}
+
+package "Airport Aggregate" {
+    class Airport <<Entity>> <<Root>> {
+        - pk : Long
+        - version : Long
+        - name : String
+    }
+
+    class IATACode <<Value Object>> {
+        - code : String
+    }
+
+    Airport "1" *-- "1" IATACode : identified by >
+}
+
+package "History Tracking" {
+    class RouteHistory <<Entity>> {
+        - routeId: String
+        - action: String
+        - startDate: LocalDateTime
+        - endDate: LocalDateTime
+        + closeHistory(endDate: LocalDateTime): void
+    }
+}
+
+Route "1" *-- "*" RouteHistory : tracks history of >
+
+Route "*" --> "1" Airport : origin >
+Route "*" --> "1" Airport : destination >
+
+@enduml

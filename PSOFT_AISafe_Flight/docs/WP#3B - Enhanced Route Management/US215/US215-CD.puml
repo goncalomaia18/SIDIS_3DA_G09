@@ -1,0 +1,31 @@
+@startuml
+skinparam classAttributeIconSize 0
+title US215-CD
+
+class RouteController {
+    + getTotalDistance(): ResponseEntity<EntityModel<Map<String, Double>>>
+}
+
+class RouteService {
+    + getTotalNetworkDistance(): Double
+}
+
+interface RouteRepository <<Repository>> {
+    + calculateTotalNetworkDistance(): Double
+}
+
+class Route <<Entity>> <<Root>> {
+    - minimumRange: Double
+    + getStatus(): RouteStatus
+}
+
+enum RouteStatus <<Enumeration>> {
+    ACTIVE
+    INACTIVE
+}
+
+RouteController --> RouteService : uses >
+RouteService --> RouteRepository : uses >
+RouteRepository --> Route : reads >
+Route --> RouteStatus : uses >
+@enduml

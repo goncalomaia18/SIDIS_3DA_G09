@@ -1,0 +1,62 @@
+@startuml
+title US212-SD
+autonumber
+actor "ATCC" as Operator
+participant ":ScheduledFlightController" as Ctrl
+participant "dto\n:CreateScheduledFlightDTO" as DTO
+participant ":ScheduledFlightService" as Service
+participant ":RouteRepository" as RouteRepo
+participant ":AircraftRepository" as AircraftRepo
+participant "flight\n:ScheduledFlight" as Entity
+participant ":ScheduledFlightRepository" as FlightRepo
+
+activate Operator
+Operator -> Ctrl : POST /api/scheduled-flights\n(CreateScheduledFlightDTO)
+activate Ctrl
+
+Ctrl -> Service : scheduleFlight(dto)
+activate Service
+
+Service -> DTO : routeId()
+activate DTO
+DTO --> Service : routeId
+deactivate DTO
+
+Service -> RouteRepo : findByRouteId(new RouteId(routeId))
+activate RouteRepo
+RouteRepo --> Service : Optional<Route>
+deactivate RouteRepo
+
+Service -> DTO : registrationNumber()
+activate DTO
+DTO --> Service : registrationNumber
+deactivate DTO
+
+Service -> AircraftRepo : findByRegistrationNumber(new RegistrationNumber(registrationNumber))
+activate AircraftRepo
+AircraftRepo --> Service : Optional<Aircraft>
+deactivate AircraftRepo
+
+note right of Service : Validates Business Rules:\n1. Aircraft is ACTIVE\n2. Airports are OPERATIONAL\n3. Aircraft capacity >= Route min capacity\n4. Aircraft range >= Route distance
+
+Service -> DTO : scheduledDateTime()
+activate DTO
+DTO --> Service : scheduledDateTime
+deactivate DTO
+
+Service -> Entity ** : new ScheduledFlight(route, aircraft, dateTime)
+
+Service -> FlightRepo : save(flight)
+activate FlightRepo
+FlightRepo --> Service : savedFlight
+deactivate FlightRepo
+
+Service --> Ctrl : ScheduledFlightViewDTO
+deactivate Service
+
+Ctrl -> Ctrl : EntityModel.of(created)
+Ctrl -> Ctrl : add linkTo(getFlightsByAircraft)
+Ctrl --> Operator : 201 Created\n(EntityModel<ScheduledFlightViewDTO>)
+deactivate Ctrl
+deactivate Operator
+@enduml

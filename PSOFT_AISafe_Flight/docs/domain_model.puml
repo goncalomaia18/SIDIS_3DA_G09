@@ -1,0 +1,252 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+title AISafe Domain Model
+hide empty members
+
+package "Aircraft Model Aggregate" {
+    class AircraftModel <<Entity>> <<Root>> {
+        - pk: Long
+        - version: Long
+        - defaultSeatingCapacity: Integer
+        - fuelCapacity: Double
+        - maximumRange: Double
+        - cruisingSpeed: Double
+        - modelPhotoUrl: String
+        - operatingHoursRange: String
+        - seatingConfiguration: String
+    }
+    class ModelName <<Value Object>> {
+        - name: String
+    }
+
+    enum Manufacturer <<Enumeration>> {
+        BOEING
+        AIRBUS
+        EMBRAER
+        BOMBARDIER
+        ATR
+    }
+
+    AircraftModel "1" *-- "1" ModelName : identified by >
+    AircraftModel "1" --> "1" Manufacturer : built by >
+}
+
+package "Aircraft Aggregate" {
+    class Aircraft <<Entity>> <<Root>> {
+        - pk: Long
+        - version: Long
+        - manufacturingDate: LocalDate
+        - actualSeatingCapacity: Integer
+        - totalFlightHours: Double
+        - operatingHoursRange: String
+        - seatingConfiguration: String
+    }
+    class RegistrationNumber <<Value Object>> {
+        - number: String
+    }
+    enum AircraftStatus <<Enumeration>> {
+        ACTIVE
+        INACTIVE
+        UNDER_MAINTENANCE
+    }
+    class AircraftFeature <<Value Object>> {
+        - description: String
+    }
+
+    Aircraft "1" *-- "1" RegistrationNumber : identified by >
+    Aircraft "1" --> "1" AircraftStatus : has >
+    Aircraft "1" *-- "*" AircraftFeature : has >
+    Aircraft "*" --> "1" AircraftModel : is of type >
+}
+
+package "Airport Aggregate" {
+    class Airport <<Entity>> <<Root>> {
+        - pk: Long
+        - version: Long
+        - name: String
+        - city: String
+        - country: String
+        - region: String
+        - timezone: String
+        - operationalHours: String
+        -imageUrl: String
+    }
+    enum AirportType <<Enumeration>> {
+        INTERNATIONAL
+        REGIONAL
+        DOMESTIC
+    }
+    class IATACode <<Value Object>> {
+        - code: String
+    }
+    enum AirportStatus <<Enumeration>> {
+        OPERATIONAL
+        CLOSED
+        UNDER_MAINTENANCE
+    }
+    class Coordinates <<Value Object>> {
+        - latitude: Double
+        - longitude: Double
+    }
+    class Runway <<Entity>> {
+        - name: String
+        - length: Double
+        - orientation: String
+    }
+    class Contact <<Value Object>> {
+        - type: String
+        - value: String
+        - description: String
+    }
+    class Facility <<Value Object>> {
+        - type: String
+        - description: String
+    }
+    class AirplaneCertification <<Entity>> {
+        - issueDate: LocalDate
+        - expiryDate: LocalDate
+        - certificationNumber: String
+    }
+
+    Airport "1" *-- "1" IATACode : identified by >
+    Airport "1" *-- "1" Coordinates : located at >
+    Airport "1" --> "1" AirportStatus : has >
+    Airport "1" *-- "*" Runway : contains >
+    Airport "1" *-- "*" Contact : has >
+    Airport "1" *-- "*" Facility : has >
+    Airport "1" *-- "*" AirplaneCertification : issues >
+    AirplaneCertification "*" --> "1" AircraftModel : authorizes >
+    Airport "1" --> "1" AirportType : is of type >
+}
+
+package "Route Aggregate" {
+    class Route <<Entity>> <<Root>> {
+        - pk: Long
+        - version: Long
+        - estimatedFlightTime: Integer
+        - minimumRange: Double
+        - minimumCapacity: Integer
+        - distance: Double
+    }
+    class RouteHistory <<Entity>> {
+        - action: String
+        - startDate: LocalDateTime
+        - endDate: LocalDateTime
+    }
+    class RouteId <<Value Object>> {
+        - id: String
+    }
+    enum RouteStatus <<Enumeration>> {
+        ACTIVE
+        INACTIVE
+    }
+
+    Route "1" *-- "1" RouteId : identified by >
+    Route "1" --> "1" RouteStatus : has >
+    Route "*" --> "1" Airport : departs from (Origin) >
+    Route "*" --> "1" Airport : arrives at (Destination) >
+    Route "1" *-- "*" RouteHistory : tracks history of >
+}
+
+package "Flight Operations Aggregate" {
+    class ScheduledFlight <<Entity>> <<Root>> {
+        - pk: Long
+        - version: Long
+        - scheduledDateTime: LocalDateTime
+    }
+    enum FlightStatus <<Enumeration>> {
+       SCHEDULED
+       DELAYED
+       IN_FLIGHT
+       COMPLETED
+       CANCELED
+    }
+
+    ScheduledFlight "1" --> "1" FlightStatus : has >
+    ScheduledFlight "*" --> "1" Route : operates on >
+    ScheduledFlight "*" --> "1" Aircraft : assigned to >
+}
+
+package "Maintenance Template Aggregate" {
+    class MaintenanceTemplate <<Entity>> <<Root>> {
+        - pk: Long
+        - version: Long
+        - templateName: String
+        - flightHoursInterval: Double
+        - calendarDaysInterval: Integer
+    }
+    enum TemplateType <<Enumeration>> {
+        INSPECTION
+        SCHEDULED_MAINTENANCE
+        OVERHAUL
+        MODIFICATION
+    }
+    class Checklist <<Entity>> {
+        - title: String
+        - version: String
+    }
+    class ChecklistItem <<Value Object>> {
+        - taskDescription: String
+        - isMandatory: Boolean
+    }
+
+    MaintenanceTemplate "1" --> "1" TemplateType : has type >
+    MaintenanceTemplate "1" *-- "1" Checklist : defines >
+    Checklist "1" *-- "*" ChecklistItem : contains >
+    MaintenanceTemplate "*" --> "*" AircraftModel : applies to >
+}
+
+package "Maintenance Record Aggregate" {
+    class MaintenanceRecord <<Entity>> <<Root>> {
+        - pk: Long
+        - version: Long
+        - description: String
+        - startDate: LocalDateTime
+        - expectedDuration: Integer
+        - completionNotes: String
+        - completionDate: LocalDateTime
+        - cost: Double
+    }
+    class MaintenanceRecordId <<Value Object>> {
+        - id: String
+    }
+    enum MaintenanceStatus <<Enumeration>> {
+        SCHEDULED
+        IN_PROGRESS
+        COMPLETED
+    }
+    enum ComponentCategory <<Enumeration>> {
+        ENGINE
+        AIRFRAME
+        AVIONICS
+        INTERIOR
+        EXTERIOR
+    }
+
+    MaintenanceRecord "1" *-- "1" MaintenanceRecordId : identified by >
+    MaintenanceRecord "1" --> "1" MaintenanceStatus : has >
+    MaintenanceRecord "1" --> "1" ComponentCategory : categorized by >
+    MaintenanceRecord "*" --> "1" Aircraft : performed on >
+    MaintenanceRecord "*" --> "1" MaintenanceTemplate : follows >
+    ' Adicionado consumo de peças
+
+}
+
+package "Inventory Aggregate" {
+    class MaintenancePart <<Entity>> <<Root>> {
+        - pk: Long
+        - version: Long
+        - name: String
+        - description: String
+        - stockQuantity: Integer
+        - minimumThreshold: Integer
+    }
+    class PartNumber <<Value Object>> {
+        - number: String
+    }
+
+    MaintenancePart "1" *-- "1" PartNumber : identified by >
+    MaintenancePart "*" --> "1" ComponentCategory : belongs to category >
+}
+@enduml

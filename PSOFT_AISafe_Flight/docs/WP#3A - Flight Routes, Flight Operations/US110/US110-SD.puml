@@ -1,0 +1,62 @@
+@startuml
+skinparam style strictuml
+autonumber
+
+actor "ATCC" as ATCC
+participant "RouteController" as Controller
+participant "RouteService" as Service
+participant "AirportRepository" as AirportRepo
+participant "RouteId" as RouteIdVO
+participant "Route" as Route
+participant "RouteRepository" as Repo
+participant "RouteHistory" as History
+participant "RouteHistoryRepository" as HistoryRepo
+participant "RouteViewDTO" as ViewDTO
+
+title SD - US110 (Create Route)
+
+ATCC -> Controller : POST /api/routes (CreateRouteDTO)
+activate Controller
+
+Controller -> Service : createRoute(dto)
+activate Service
+
+Service -> AirportRepo : findByIataCodeString(dto.originIata)
+activate AirportRepo
+AirportRepo --> Service : Optional<Airport> (originAirport)
+deactivate AirportRepo
+
+Service -> AirportRepo : findByIataCodeString(dto.destinationIata)
+activate AirportRepo
+AirportRepo --> Service : Optional<Airport> (destinationAirport)
+deactivate AirportRepo
+
+Service -> RouteIdVO ** : create(dto.routeId)
+Service -> Route ** : create(routeId, originAirport, destinationAirport, ...)
+activate Route
+Route --> Service : routeInstance
+deactivate Route
+
+Service -> Repo : save(routeInstance)
+activate Repo
+Repo --> Service : savedRoute
+deactivate Repo
+
+Service -> History ** : create(savedRoute.getRouteId().id(), "CREATED")
+Service -> HistoryRepo : save(historyInstance)
+activate HistoryRepo
+HistoryRepo --> Service : savedHistory
+deactivate HistoryRepo
+
+Service -> ViewDTO ** : create(savedRoute)
+activate ViewDTO
+ViewDTO --> Service : routeViewDTO
+deactivate ViewDTO
+
+Service --> Controller : routeViewDTO
+deactivate Service
+
+Controller --> ATCC : 201 Created (EntityModel<RouteViewDTO>)
+deactivate Controller
+
+@enduml

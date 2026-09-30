@@ -1,0 +1,31 @@
+@startuml
+skinparam style strictuml
+title DM - US101
+
+package "Aircraft Model Aggregate" {
+    class AircraftModel <<Entity>> <<Root>> {
+        - defaultSeatingCapacity : Integer
+        - fuelCapacity : Double
+        - maximumRange : Double
+        - cruisingSpeed : Double
+        - modelPhotoUrl : String
+        - operatingHoursRange : String
+        - seatingConfiguration : String
+    }
+
+    class ModelName <<Value Object>> {
+        - name : String
+    }
+
+    enum Manufacturer <<Enum>> {
+        BOEING
+        AIRBUS
+        EMBRAER
+        BOMBARDIER
+        ATR
+    }
+
+    AircraftModel *-- "1" ModelName
+    AircraftModel *-- "1" Manufacturer
+}
+@enduml

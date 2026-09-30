@@ -1,0 +1,13 @@
+@startuml
+skinparam style strictuml
+autonumber
+title SSD-US109
+
+actor "Backoffice / Admin" as Admin
+participant "AISafe System" as System
+
+Admin -> System : PATCH /api/airports/{iataCode}/status (newStatus: String)
+activate System
+System --> Admin : 200 OK (Updated Airport Details + HATEOAS Links)
+deactivate System
+@enduml

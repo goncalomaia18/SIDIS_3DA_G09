@@ -1,0 +1,40 @@
+@startuml
+title US218-SD
+autonumber
+actor "Maintenance Technician" as Tech
+participant ":MaintenanceController" as Ctrl
+participant ":MaintenanceService" as Service
+participant ":MaintenanceRecordRepository" as Repo
+
+activate Tech
+Tech -> Ctrl : GET /api/maintenance/records/search\n?(registrationNumber, fromDate, toDate, category, pageable)
+activate Ctrl
+
+Ctrl -> Service : searchMaintenanceRecords(regNum, fromDate, toDate, category, pageable)
+activate Service
+
+note right of Service : Parses fromDate to atStartOfDay()\nParses toDate to atTime(23, 59, 59)
+
+alt category != null && !category.isBlank()
+    Service -> Service : cat = ComponentCategory.valueOf(category.toUpperCase())
+end
+
+Service -> Repo : searchRecords(regNum, start, end, cat, pageable)
+activate Repo
+Repo --> Service : Page<MaintenanceRecord>
+deactivate Repo
+
+Service --> Ctrl : Page<MaintenanceRecord>
+deactivate Service
+
+loop for each MaintenanceRecord
+    Ctrl -> Ctrl : create EntityModel(record)
+    alt record.status == SCHEDULED
+        Ctrl -> Ctrl : add link ("complete-this-record")
+    end
+end
+
+Ctrl --> Tech : 200 OK\n(PagedModel<EntityModel<MaintenanceRecord>>)
+deactivate Ctrl
+deactivate Tech
+@enduml

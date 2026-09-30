@@ -1,0 +1,15 @@
+@startuml
+skinparam style strictuml
+autonumber
+title SSD-US104
+
+actor "ATCC" as ATCC
+participant "AISafe System" as SYS
+
+ATCC -> SYS : GET /api/aircraft-models/instances?model={m}&status={s}&year={y}
+activate SYS
+
+SYS --> ATCC : 200 OK (List of Aircraft Details + HATEOAS Links)
+deactivate SYS
+
+@enduml

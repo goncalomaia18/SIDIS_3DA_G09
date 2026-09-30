@@ -1,0 +1,14 @@
+@startuml
+skinparam style strictuml
+autonumber
+title SSD-US106
+
+actor "Backoffice / Admin" as Admin
+participant "AISafe System" as System
+
+Admin -> System : POST /api/airports \n(iataCode, name, city, country, timezone, type, latitude, longitude, runways)
+activate System
+
+System --> Admin : 201 Created (Airport Details + HATEOAS Links)
+deactivate System
+@enduml

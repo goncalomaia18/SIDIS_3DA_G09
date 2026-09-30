@@ -1,0 +1,15 @@
+@startuml
+skinparam style strictuml
+autonumber
+title SSD-US105
+
+actor "ATCC" as ATCC
+participant "AISafe System" as SYS
+
+ATCC -> SYS : PATCH /api/aircraft-models/instances/{regNum}/status (UpdateAircraftStatusDTO)
+activate SYS
+
+SYS --> ATCC : 200 OK (Updated Aircraft Details + HATEOAS Links)
+deactivate SYS
+
+@enduml

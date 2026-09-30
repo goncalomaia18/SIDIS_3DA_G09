@@ -1,0 +1,36 @@
+@startuml
+title US221-SD
+autonumber
+actor "Maintenance Supervisor" as Sup
+participant ":MaintenanceController" as Ctrl
+participant ":MaintenanceService" as Service
+participant ":MaintenanceRecordRepository" as Repo
+participant "dto:TurnaroundTimeDTO" as DTO
+
+activate Sup
+Sup -> Ctrl : GET /api/maintenance/statistics/turnaround
+activate Ctrl
+
+Ctrl -> Service : getTurnaroundTimePerAircraftModel()
+activate Service
+
+Service -> Repo : findByStatus(COMPLETED)
+activate Repo
+Repo --> Service : List<MaintenanceRecord>
+deactivate Repo
+
+Service -> Service : group by model && calculate average
+Service -> DTO ** : create (map modelName + avgHours)
+Service --> Ctrl : List<TurnaroundTimeDTO>
+deactivate Service
+
+alt turnaroundStats.isEmpty()
+    Ctrl --> Sup : 204 No Content
+else
+    Ctrl -> Ctrl : wrap in CollectionModel/EntityModel
+    Ctrl --> Sup : 200 OK
+end
+
+deactivate Ctrl
+deactivate Sup
+@enduml

@@ -1,0 +1,15 @@
+@startuml
+skinparam style strictuml
+autonumber
+title SSD US-101
+
+actor "Backoffice Operator" as OP
+participant "AISafe System" as SYS
+
+OP -> SYS : POST /api/aircraft-models (modelName, manufacturer, seatingCapacity, fuelCapacity, range, speed, modelPhotoUrl)
+activate SYS
+
+SYS --> OP : 201 Created (Model Details + HATEOAS Links)
+deactivate SYS
+
+@enduml

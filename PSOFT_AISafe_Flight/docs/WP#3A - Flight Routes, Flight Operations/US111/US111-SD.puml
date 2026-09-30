@@ -1,0 +1,35 @@
+@startuml
+skinparam style strictuml
+autonumber
+
+actor "ATCC" as ATCC
+participant "RouteController" as Controller
+participant "RouteService" as Service
+participant "RouteHistoryRepository" as Repo
+participant "RouteHistoryDTO" as DTO
+
+title SD - US111 (Keep track of route history)
+
+ATCC -> Controller : GET /api/routes/{id}/history
+activate Controller
+
+Controller -> Service : getRouteHistory(id)
+activate Service
+
+Service -> Repo : findByRouteIdOrderByStartDateDesc(id)
+activate Repo
+Repo --> Service : List<RouteHistory>
+deactivate Repo
+
+Service -> DTO ** : mapToDTOs(List<RouteHistory>)
+activate DTO
+DTO --> Service : List<RouteHistoryDTO>
+deactivate DTO
+
+Service --> Controller : List<RouteHistoryDTO>
+deactivate Service
+
+Controller --> ATCC : 200 OK (CollectionModel<RouteHistoryDTO>)
+deactivate Controller
+
+@enduml

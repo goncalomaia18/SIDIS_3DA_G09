@@ -1,0 +1,13 @@
+@startuml
+title US215-SSD
+autonumber
+actor "ATCC" as Operator
+participant "System" as Sys
+
+activate Operator
+Operator -> Sys : GET /api/routes/statistics/total-distance
+activate Sys
+Sys --> Operator : Calculates and returns the total network distance (200 OK)
+deactivate Sys
+deactivate Operator
+@enduml

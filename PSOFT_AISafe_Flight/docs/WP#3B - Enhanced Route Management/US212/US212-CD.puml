@@ -1,0 +1,83 @@
+@startuml
+skinparam classAttributeIconSize 0
+title US212-CD
+
+class ScheduledFlightController {
+    + scheduleFlight(dto: CreateScheduledFlightDTO): ResponseEntity<EntityModel<ScheduledFlightViewDTO>>
+}
+
+class ScheduledFlightService {
+    + scheduleFlight(dto: CreateScheduledFlightDTO): ScheduledFlightViewDTO
+}
+
+interface ScheduledFlightRepository <<Repository>> {
+    + save(flight: ScheduledFlight): ScheduledFlight
+}
+
+interface RouteRepository <<Repository>> {
+    + findByRouteId(routeId: RouteId): Optional<Route>
+}
+
+interface AircraftRepository <<Repository>> {
+    + findByRegistrationNumber(registrationNumber: RegistrationNumber): Optional<Aircraft>
+}
+
+class ScheduledFlight <<Entity>> <<Root>> {
+    - scheduledDateTime: LocalDateTime
+    - status: FlightStatus
+    + ScheduledFlight(route: Route, aircraft: Aircraft, scheduledDateTime: LocalDateTime)
+}
+
+class CreateScheduledFlightDTO <<Record>> {
+    + routeId: String
+    + registrationNumber: String
+    + scheduledDateTime: String
+}
+
+class ScheduledFlightViewDTO <<Record>> {
+    + id: Long
+    + routeId: String
+    + registrationNumber: String
+    + scheduledDateTime: String
+    + status: String
+}
+
+class Route <<Entity>> {
+    - minimumRange: Double
+    - minimumCapacity: Integer
+    + getOrigin(): Airport
+    + getDestination(): Airport
+}
+
+class Aircraft <<Entity>> {
+    - actualSeatingCapacity: Integer
+    + getStatus(): AircraftStatus
+    + getAircraftModel(): AircraftModel
+}
+
+class Airport <<Entity>> {
+    + getStatus(): AirportStatus
+}
+
+class AircraftModel <<Entity>> {
+    + getMaximumRange(): Double
+}
+
+ScheduledFlightController ..> CreateScheduledFlightDTO : consumes >
+ScheduledFlightController ..> ScheduledFlightViewDTO : produces >
+ScheduledFlightController --> ScheduledFlightService : uses >
+
+ScheduledFlightService ..> CreateScheduledFlightDTO : uses >
+ScheduledFlightService ..> ScheduledFlightViewDTO : creates >
+ScheduledFlightService --> ScheduledFlightRepository : uses >
+ScheduledFlightService --> RouteRepository : uses >
+ScheduledFlightService --> AircraftRepository : uses >
+
+ScheduledFlightService --> ScheduledFlight : creates >
+ScheduledFlightService --> Route : reads >
+ScheduledFlightService --> Aircraft : reads >
+ScheduledFlightService --> Airport : checks status >
+ScheduledFlightService --> AircraftModel : checks range >
+
+ScheduledFlightRepository --> ScheduledFlight : persists >
+@enduml

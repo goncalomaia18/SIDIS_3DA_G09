@@ -1,0 +1,62 @@
+@startuml
+title US216-SD
+autonumber
+actor "ATCC" as Operator
+participant ":RouteController" as Ctrl
+participant ":RouteService" as Service
+participant "routeSearchStrategy\n:FastestRouteStrategy" as Strategy
+participant ":RouteRepository" as Repo
+
+activate Operator
+Operator -> Ctrl : GET /api/routes/alternatives?originIata={origin}&destinationIata={destination}
+activate Ctrl
+
+Ctrl -> Service : findAlternativeRoutes(originIata, destinationIata)
+activate Service
+
+Service -> Strategy : findAlternatives(originIata, destinationIata)
+activate Strategy
+
+Strategy -> Repo : findByOrigin_IataCode_Code(originIata, unpaged)
+activate Repo
+note right of Repo : Filters to ensure Route is ACTIVE
+Repo --> Strategy : Page<Route> (initial routes)
+deactivate Repo
+
+loop while queue is not empty
+    Strategy -> Strategy : currentPath = queue.poll()
+
+    alt destination reached
+        Strategy -> Strategy : convertToAlternativeDTO(currentPath)
+        note right of Strategy : Calculates total time (+ MCT penalties) and distance
+        Strategy -> Strategy : foundAlternatives.add(dto)
+
+    else path size < MAX_FLIGHTS
+        Strategy -> Strategy : check cycle (avoid visited airports)
+
+        alt no cycle detected
+            Strategy -> Repo : findByOrigin_IataCode_Code(currentAirport, unpaged)
+            activate Repo
+            note right of Repo : Filters to ensure Route is ACTIVE
+            Repo --> Strategy : Page<Route> (next routes)
+            deactivate Repo
+        end
+    end
+end
+
+Strategy -> Strategy : sort by totalEstimatedFlightTime ASC
+Strategy --> Service : List<AlternativeRouteDTO>
+deactivate Strategy
+
+Service --> Ctrl : List<AlternativeRouteDTO>
+deactivate Service
+
+alt alternatives.isEmpty()
+    Ctrl --> Operator : 204 No Content
+else
+    Ctrl --> Operator : 200 OK\n(CollectionModel<EntityModel<AlternativeRouteDTO>>)
+end
+
+deactivate Ctrl
+deactivate Operator
+@enduml

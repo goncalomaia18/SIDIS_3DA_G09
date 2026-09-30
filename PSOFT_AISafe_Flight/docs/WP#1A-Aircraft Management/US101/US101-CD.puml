@@ -1,0 +1,66 @@
+@startuml
+skinparam style strictuml
+skinparam packageStyle rectangle
+title Class Diagram - US101
+
+package "API Layer" {
+    class AircraftController {
+        + createModel(dto: RegisterAircraftModelDTO): ResponseEntity<EntityModel<RegisterAircraftModelDTO>>
+    }
+}
+
+package "Application Layer" {
+    class AircraftService {
+        + registerModel(dto: RegisterAircraftModelDTO): void
+    }
+    class RegisterAircraftModelDTO <<DTO>> {
+        + modelName: String
+        + manufacturer: String
+        + seatingCapacity: Integer
+        + fuelCapacity: Double
+        + range: Double
+        + speed: Double
+        + modelPhotoUrl: String
+    }
+}
+
+package "Domain Layer" {
+    class AircraftModel <<Entity>> <<Root>> {
+        - pk: Long
+        - defaultSeatingCapacity: Integer
+        - fuelCapacity: Double
+        - maximumRange: Double
+        - cruisingSpeed: Double
+        - modelPhotoUrl: String
+        - operatingHoursRange: String
+        - seatingConfiguration: String
+        + AircraftModel(modelName: ModelName, manufacturer: Manufacturer, defaultSeatingCapacity: Integer, fuelCapacity: Double, maximumRange: Double, cruisingSpeed: Double, modelPhotoUrl: String)
+    }
+
+    class ModelName <<Value Object>> {
+        - name: String
+    }
+
+    enum Manufacturer <<Enum>> {
+        BOEING
+        AIRBUS
+        EMBRAER
+        BOMBARDIER
+        ATR
+    }
+}
+
+package "Infrastructure Layer" {
+    interface AircraftModelRepository <<Repository>> {
+        + save(model: AircraftModel): AircraftModel
+        + findByModelName(modelName: ModelName): Optional<AircraftModel>
+    }
+}
+
+AircraftController .down.> AircraftService : calls
+AircraftService .down.> AircraftModelRepository : uses
+AircraftService .down.> AircraftModel : creates
+AircraftModel *-- "1" ModelName
+AircraftModel *-- "1" Manufacturer
+
+@enduml

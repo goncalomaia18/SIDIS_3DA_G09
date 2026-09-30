@@ -1,0 +1,62 @@
+@startuml
+skinparam style strictuml
+autonumber
+actor "ATCC / Backoffice" as User
+participant "RouteController" as Ctrl
+participant "RouteService" as Svc
+participant "RouteRepository" as Repo
+participant "RouteViewDTO" as DTO
+
+title SD - US113
+
+== Flow 1: View all routes from a specific origin ==
+
+User -> Ctrl : GET /api/routes/origin/{iataCode}
+activate Ctrl
+
+Ctrl -> Svc : getRoutesByOrigin(iataCode)
+activate Svc
+
+Svc -> Repo : findByOrigin_IataCode_Code(iataCode)
+activate Repo
+Repo --> Svc : List<Route> (routesList)
+deactivate Repo
+
+Svc -> DTO ** : mapToDTOs(routesList)
+activate DTO
+DTO --> Svc : List<RouteViewDTO>
+deactivate DTO
+
+Svc --> Ctrl : List<RouteViewDTO>
+deactivate Svc
+
+Ctrl --> User : 200 OK (CollectionModel)
+deactivate Ctrl
+
+|||
+
+== Flow 2: View the details of a route given its ID ==
+
+User -> Ctrl : GET /api/routes/{id}
+activate Ctrl
+
+Ctrl -> Svc : getRouteById(id)
+activate Svc
+
+Svc -> Repo : findByRouteId(id)
+activate Repo
+Repo --> Svc : Optional<Route> (route)
+deactivate Repo
+
+Svc -> DTO ** : create(route)
+activate DTO
+DTO --> Svc : RouteViewDTO
+deactivate DTO
+
+Svc --> Ctrl : RouteViewDTO
+deactivate Svc
+
+Ctrl --> User : 200 OK (EntityModel)
+deactivate Ctrl
+
+@enduml

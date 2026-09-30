@@ -1,0 +1,37 @@
+@startuml
+skinparam style strictuml
+autonumber
+title SD-US103
+
+actor "ATCC" as ATCC
+participant ":AircraftController" as Controller
+participant ":AircraftService" as Service
+participant "RegistrationNumber" as RN
+participant ":AircraftRepository" as Repo
+participant "aircraftViewDTO:AircraftViewDTO" as DTO
+
+ATCC -> Controller : GET /api/aircraft-models/instances/{registrationNumber}
+activate Controller
+
+Controller -> Service : getAircraftByRegistrationNumber(registrationNumber)
+activate Service
+
+Service -> RN ** : create(registrationNumber)
+
+Service -> Repo : findByRegistrationNumber(registrationNumber)
+activate Repo
+Repo --> Service : Optional<Aircraft>
+deactivate Repo
+
+Service -> DTO ** : create(regNum, modelName, manufacturingDate, seatingCapacity, status, modelPhotoUrl)
+
+Service --> Controller : aircraftViewDTO
+deactivate Service
+
+Controller -> Controller : resource = EntityModel.of(aircraftViewDTO)
+Controller -> Controller : resource.add(linkTo(self).withSelfRel())
+
+Controller --> ATCC : 200 OK (EntityModel<AircraftViewDTO> + HATEOAS Links)
+deactivate Controller
+
+@enduml

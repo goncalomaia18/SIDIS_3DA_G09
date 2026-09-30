@@ -1,0 +1,62 @@
+@startuml
+skinparam style strictuml
+skinparam packageStyle rectangle
+title CD-US102
+
+package "API Layer" {
+    class AircraftController {
+        + createAircraft(dto: RegisterAircraftDTO): ResponseEntity<EntityModel<RegisterAircraftDTO>>
+    }
+}
+
+package "Application Layer" {
+    class AircraftService {
+        + registerAircraft(dto: RegisterAircraftDTO): void
+    }
+    class RegisterAircraftDTO <<DTO>> {
+        + registrationNumber: String
+        + modelName: String
+        + manufacturingDate: LocalDate
+        + seatingCapacity: Integer
+    }
+}
+
+package "Domain Layer" {
+    class Aircraft <<Entity>> <<Root>> {
+        - pk: Long
+        - version: Long
+        - manufacturingDate: LocalDate
+        - actualSeatingCapacity: Integer
+        - totalFlightHours: Double
+        + Aircraft(registrationNumber: RegistrationNumber, model: AircraftModel, manufacturingDate: LocalDate, actualSeatingCapacity: Integer)
+    }
+    class RegistrationNumber <<Value Object>> {
+        - number: String
+    }
+    enum AircraftStatus <<Enum>> {
+        ACTIVE
+        INACTIVE
+        UNDER_MAINTENANCE
+    }
+    class AircraftModel <<Entity>>
+}
+
+package "Infrastructure Layer" {
+    interface AircraftRepository <<Repository>> {
+        + save(aircraft: Aircraft): Aircraft
+    }
+    interface AircraftModelRepository <<Repository>> {
+        + findByModelName(name: ModelName): Optional<AircraftModel>
+    }
+}
+
+AircraftController .down.> AircraftService : calls
+AircraftService .down.> AircraftModelRepository : uses
+AircraftService .down.> AircraftRepository : uses
+AircraftService .down.> Aircraft : creates
+AircraftService .down.> RegistrationNumber : creates
+
+Aircraft *-- "1" RegistrationNumber
+Aircraft *-- "1" AircraftStatus
+Aircraft "1" --> "1" AircraftModel : model
+@enduml

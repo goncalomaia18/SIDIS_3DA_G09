@@ -1,0 +1,14 @@
+@startuml
+skinparam style strictuml
+autonumber
+actor "ATCC / Backoffice" as User
+participant "AISafe API" as Sys
+
+title SSD - US114
+
+User -> Sys : GET /api/routes?origin={originIata}&dest={destinationIata}
+activate Sys
+Sys --> User : 200 OK \n(List of Filtered Routes + HATEOAS Links)
+deactivate Sys
+
+@enduml

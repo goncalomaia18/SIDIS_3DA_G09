@@ -1,0 +1,59 @@
+@startuml
+skinparam style strictuml
+hide empty members
+title CD-US106
+
+package "API Layer" {
+    class AirportController <<RestController>> {
+        + createAirport(dto: RegisterAirportDTO): ResponseEntity<EntityModel<AirportViewDTO>>
+    }
+}
+
+package "Application Layer" {
+    class AirportService <<Service>> {
+        + registerAirport(dto: RegisterAirportDTO): AirportViewDTO
+        - mapToDTO(airport: Airport): AirportViewDTO
+    }
+    class RegisterAirportDTO <<Record>>
+    class AirportViewDTO <<Record>>
+}
+
+package "Domain Layer" {
+    class Airport <<Entity>> <<Root>> {
+        - pk: Long
+        - version: Long
+        - name: String
+        - city: String
+        - country: String
+        - timezone: String
+    }
+    class Runway <<Entity>>
+    class IATACode <<Value Object>>
+    class Coordinates <<Value Object>>
+    enum AirportType <<Enum>>
+    enum AirportStatus <<Enum>>
+}
+
+package "Infrastructure Layer" {
+    interface AirportRepository <<Interface>> {
+        + save(airport: Airport): Airport
+    }
+}
+
+AirportController .down.> AirportService : uses >
+AirportController .down.> RegisterAirportDTO : receives >
+AirportController .down.> AirportViewDTO : returns >
+
+AirportService .down.> AirportRepository : uses >
+AirportService .down.> Airport : instantiates >
+AirportService .down.> Runway : instantiates >
+AirportService .down.> IATACode : creates >
+AirportService .down.> Coordinates : creates >
+
+Airport *-- "1" IATACode
+Airport *-- "1" Coordinates
+Airport *-- "1" AirportType
+Airport *-- "1" AirportStatus
+Airport *-- "0..*" Runway
+
+@enduml

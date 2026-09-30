@@ -1,0 +1,59 @@
+@startuml
+skinparam style strictuml
+skinparam packageStyle rectangle
+title CD-US104
+
+package "API Layer" {
+    class AircraftController {
+        + searchAircrafts(model: String, status: String, year: Integer): ResponseEntity<CollectionModel<EntityModel<AircraftViewDTO>>>
+    }
+}
+
+package "Application Layer" {
+    class AircraftService {
+        + searchAircrafts(model: String, status: String, year: Integer): List<AircraftViewDTO>
+        - mapToViewDTO(aircraft: Aircraft): AircraftViewDTO
+    }
+    class AircraftViewDTO <<DTO>> {
+        + registrationNumber: String
+        + modelName: String
+        + manufacturingDate: LocalDate
+        + seatingCapacity: Integer
+        + status: String
+        + modelPhotoUrl: String
+    }
+}
+
+package "Domain Layer" {
+    class Aircraft <<Entity>> <<Root>> {
+        - pk: Long
+        - version: Long
+        - manufacturingDate: LocalDate
+        - actualSeatingCapacity: Integer
+        - totalFlightHours: Double
+    }
+    enum AircraftStatus <<Enum>> {
+        ACTIVE
+        INACTIVE
+        UNDER_MAINTENANCE
+    }
+    class ModelName <<Value Object>>
+}
+
+package "Infrastructure Layer" {
+    interface AircraftRepository <<Repository>> {
+        + findByManufacturingYear(year: int): List<Aircraft>
+        + findByStatus(status: AircraftStatus): List<Aircraft>
+        + findByModel_ModelName(modelName: ModelName): List<Aircraft>
+        + findAll(): List<Aircraft>
+    }
+}
+
+AircraftController .down.> AircraftService : calls
+AircraftController .down.> AircraftViewDTO : uses
+AircraftService .down.> AircraftViewDTO : creates
+AircraftService .down.> AircraftRepository : uses
+AircraftService .down.> AircraftStatus : uses
+AircraftService .down.> ModelName : uses
+AircraftService .down.> Aircraft : reads
+@enduml

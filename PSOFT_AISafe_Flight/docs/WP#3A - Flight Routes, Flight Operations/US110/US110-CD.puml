@@ -1,0 +1,81 @@
+@startuml
+skinparam style strictuml
+skinparam packageStyle rectangle
+
+title Class Diagram - US110
+
+package "API Layer" {
+    class RouteController <<RestController>> {
+        + @PostMapping("/api/routes") createRoute(dto: CreateRouteDTO): ResponseEntity<EntityModel<RouteViewDTO>>
+    }
+}
+
+package "Application Layer" {
+    class RouteService <<Service>> {
+        + createRoute(dto: CreateRouteDTO): RouteViewDTO
+    }
+    class CreateRouteDTO <<DTO>> {
+        + routeId: String
+        + originIata: String
+        + destinationIata: String
+        + estimatedFlightTime: Integer
+        + minimumRange: Double
+        + minimumCapacity: Integer
+    }
+    class RouteViewDTO <<DTO>> {
+        + routeId: String
+        + originIata: String
+        + destinationIata: String
+        + status: String
+    }
+}
+
+package "Domain Layer" {
+    class Route <<Entity>> <<Root>> {
+        - version: Long
+        - estimatedFlightTime: Integer
+        - minimumRange: Double
+        - minimumCapacity: Integer
+        + Route(routeId, origin, destination, time, range, capacity)
+    }
+    class RouteId <<Value Object>> {
+        - id: String
+    }
+    class RouteHistory <<Entity>> {
+        - routeId: String
+        - action: String
+        - startDate: LocalDateTime
+        - endDate: LocalDateTime
+        + closeHistory(endDate: LocalDateTime): void
+    }
+}
+
+package "Infrastructure Layer" {
+    interface RouteRepository <<Repository>> {
+        + save(route: Route): Route
+    }
+    interface AirportRepository <<Repository>> {
+        + findByIataCodeString(code: String): Optional<Airport>
+    }
+    interface RouteHistoryRepository <<Repository>> {
+        + save(history: RouteHistory): RouteHistory
+    }
+}
+
+' Ligações dos Controllers e DTOs
+RouteController .down.> RouteService : delegates to
+RouteController .down.> CreateRouteDTO : consumes
+RouteController .down.> RouteViewDTO : produces
+
+' Ligações do Service
+RouteService .down.> AirportRepository : uses
+RouteService .down.> RouteRepository : uses
+RouteService .down.> RouteHistoryRepository : uses
+RouteService .down.> Route : creates
+RouteService .down.> RouteHistory : creates
+RouteService .down.> RouteId : creates
+RouteService .down.> RouteViewDTO : creates
+
+' Ligações de Domínio
+Route *-- "1" RouteId
+@enduml

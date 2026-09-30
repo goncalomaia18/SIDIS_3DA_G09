@@ -1,0 +1,51 @@
+@startuml
+skinparam style strictuml
+autonumber
+title SD-US102
+
+actor "ATCC" as ATCC
+participant ":AircraftController" as Controller
+participant ":AircraftService" as Service
+participant "ModelName" as MN
+participant ":AircraftModelRepository" as ModelRepo
+participant "RegistrationNumber" as RN
+participant "aircraft:Aircraft" as Aircraft
+participant ":AircraftRepository" as Repo
+
+ATCC -> Controller : POST /api/aircraft-models/instances (RegisterAircraftDTO)
+activate Controller
+
+Controller -> Service : registerAircraft(dto)
+activate Service
+
+' 1. Procurar o modelo base
+Service -> MN ** : create(dto.modelName)
+Service -> ModelRepo : findByModelName(modelName)
+activate ModelRepo
+ModelRepo --> Service : Optional<AircraftModel>
+deactivate ModelRepo
+
+' 2. Criar a nova instância
+Service -> RN ** : create(dto.registrationNumber)
+Service -> Aircraft ** : create(registrationNumber, aircraftModel, dto.manufacturingDate, dto.seatingCapacity)
+activate Aircraft
+
+Aircraft --> Service : aircraft
+deactivate Aircraft
+
+' 3. Persistir e devolver
+Service -> Repo : save(aircraft)
+activate Repo
+Repo --> Service : savedAircraft
+deactivate Repo
+
+Service --> Controller : void
+deactivate Service
+
+Controller -> Controller : resource = EntityModel.of(dto)
+Controller -> Controller : resource.add(linkTo(self).withSelfRel())
+
+Controller --> ATCC : 201 Created (EntityModel<RegisterAircraftDTO> + HATEOAS Links)
+deactivate Controller
+
+@enduml

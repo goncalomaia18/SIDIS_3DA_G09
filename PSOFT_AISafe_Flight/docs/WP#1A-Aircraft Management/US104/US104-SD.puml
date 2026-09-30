@@ -1,0 +1,67 @@
+@startuml
+skinparam style strictuml
+autonumber
+title SD-US104
+
+actor "ATCC" as ATCC
+participant ":AircraftController" as Controller
+participant ":AircraftService" as Service
+participant "ModelName" as MN
+participant "AircraftStatus" as Enum
+participant ":AircraftRepository" as Repo
+participant "dto:AircraftViewDTO" as DTO
+
+ATCC -> Controller : GET /api/aircraft-models/instances?model={m}&status={s}&year={y}
+activate Controller
+
+Controller -> Service : searchAircrafts(model, status, year)
+activate Service
+
+alt year != null
+    Service -> Repo : findByManufacturingYear(year)
+    activate Repo
+    Repo --> Service : listOfAircrafts
+    deactivate Repo
+
+else status != null && !status.isBlank()
+    Service -> Enum : valueOf(status.toUpperCase())
+    activate Enum
+    Enum --> Service : aircraftStatus
+    deactivate Enum
+
+    Service -> Repo : findByStatus(aircraftStatus)
+    activate Repo
+    Repo --> Service : listOfAircrafts
+    deactivate Repo
+
+else model != null && !model.isBlank()
+    Service -> MN ** : create(model)
+
+    Service -> Repo : findByModel_ModelName(modelName)
+    activate Repo
+    Repo --> Service : listOfAircrafts
+    deactivate Repo
+
+else no filters provided
+    Service -> Repo : findAll()
+    activate Repo
+    Repo --> Service : listOfAircrafts
+    deactivate Repo
+end
+
+loop for each aircraft in listOfAircrafts
+    Service -> Service : mapToViewDTO(aircraft)
+    activate Service
+    Service -> DTO ** : create(regNumber, modelName, mfgDate, capacity, status, photoUrl)
+    deactivate Service
+end
+
+Service --> Controller : List<AircraftViewDTO>
+deactivate Service
+
+Controller -> Controller : resources = map list to EntityModel with selfRel
+Controller -> Controller : collection = CollectionModel.of(resources)
+
+Controller --> ATCC : 200 OK (CollectionModel<EntityModel<AircraftViewDTO>> + Links)
+deactivate Controller
+@enduml

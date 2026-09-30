@@ -1,0 +1,47 @@
+@startuml
+skinparam style strictuml
+autonumber
+title SD-US101
+
+actor "Backoffice Operator" as OP
+participant ":AircraftController" as Controller
+participant ":AircraftService" as Service
+participant "ModelName" as MN
+participant "Manufacturer" as Enum
+participant "model:AircraftModel" as Model
+participant ":AircraftModelRepository" as Repository
+
+OP -> Controller : POST /api/aircraft-models (RegisterAircraftModelDTO)
+activate Controller
+
+Controller -> Service : registerModel(dto)
+activate Service
+
+Service -> MN ** : create(dto.modelName)
+
+Service -> Enum : valueOf(dto.manufacturer.toUpperCase())
+activate Enum
+Enum --> Service : manufacturer
+deactivate Enum
+
+Service -> Model ** : create(name, manufacturer, dto.seatingCapacity, dto.fuelCapacity, dto.range, dto.speed, dto.modelPhotoUrl)
+activate Model
+Model -> Model : Assert Validations
+Model --> Service : model
+deactivate Model
+
+Service -> Repository : save(model)
+activate Repository
+Repository --> Service : savedModel
+deactivate Repository
+
+Service --> Controller : void
+deactivate Service
+
+Controller -> Controller : resource = EntityModel.of(dto)
+Controller -> Controller : resource.add(linkTo(self).withSelfRel())
+
+Controller --> OP : 201 Created (EntityModel<RegisterAircraftModelDTO>)
+deactivate Controller
+
+@enduml

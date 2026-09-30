@@ -1,0 +1,42 @@
+@startuml
+skinparam classAttributeIconSize 0
+hide empty members
+title US213-DM
+
+package "Scheduled Flight Aggregate" {
+    class ScheduledFlight <<Entity>> <<Root>> {
+        - scheduledDateTime: LocalDateTime
+    }
+
+    enum FlightStatus <<Enumeration>> {
+        SCHEDULED
+    }
+
+    ScheduledFlight "1" --> "1" FlightStatus : has >
+}
+
+package "Aircraft Aggregate" {
+    class Aircraft <<Entity>> <<Root>> {
+    }
+
+    class RegistrationNumber <<Value Object>> {
+        - number: String
+    }
+
+    Aircraft "1" *-- "1" RegistrationNumber : identified by >
+}
+
+package "Route Aggregate" {
+    class Route <<Entity>> <<Root>> {
+    }
+
+    class RouteId <<Value Object>> {
+        - id: String
+    }
+
+    Route "1" *-- "1" RouteId : identified by >
+}
+
+ScheduledFlight "*" --> "1" Aircraft : assigned to >
+ScheduledFlight "*" --> "1" Route : follows >
+@enduml

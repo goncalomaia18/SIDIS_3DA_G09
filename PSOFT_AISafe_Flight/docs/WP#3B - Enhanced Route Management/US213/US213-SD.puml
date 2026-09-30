@@ -1,0 +1,35 @@
+@startuml
+title US213-SD
+autonumber
+actor "ATCC" as Operator
+participant ":ScheduledFlightController" as Ctrl
+participant ":ScheduledFlightService" as Service
+participant "regNum\n:RegistrationNumber" as RegNum
+participant ":ScheduledFlightRepository" as Repo
+participant "dto\n:ScheduledFlightViewDTO" as DTO
+
+activate Operator
+Operator -> Ctrl : GET /api/scheduled-flights/aircraft/{registrationNumber}
+activate Ctrl
+
+Ctrl -> Service : getScheduledFlightsByAircraft(registrationNumber)
+activate Service
+
+Service -> RegNum ** : new RegistrationNumber(registrationNumber.trim().toUpperCase())
+
+Service -> Repo : findByAircraft_RegistrationNumber(regNum)
+activate Repo
+Repo --> Service : List<ScheduledFlight>
+deactivate Repo
+
+loop for each ScheduledFlight f in list
+    Service -> DTO ** : create(\n f.getPk(),\n f.getRoute().getRouteId().id(),\n f.getAircraft().getRegistrationNumber().number(),\n f.getScheduledDateTime().toString(),\n f.getStatus().name()\n)
+end
+
+Service --> Ctrl : List<ScheduledFlightViewDTO>
+deactivate Service
+
+Ctrl --> Operator : 200 OK\n(CollectionModel<EntityModel<ScheduledFlightViewDTO>>)
+deactivate Ctrl
+deactivate Operator
+@enduml

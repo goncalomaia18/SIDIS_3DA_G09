@@ -1,0 +1,13 @@
+@startuml
+title US212-SSD
+autonumber
+actor "ATCC" as Operator
+participant "System" as Sys
+
+activate Operator
+Operator -> Sys : POST /api/scheduled-flights\n(CreateScheduledFlightDTO)
+activate Sys
+Sys --> Operator : Schedules the flight and returns the flight details\nwith aircraft-flights link (201 Created)
+deactivate Sys
+deactivate Operator
+@enduml

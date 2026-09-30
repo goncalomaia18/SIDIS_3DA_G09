@@ -1,0 +1,38 @@
+@startuml
+title US202-CD
+
+skinparam classAttributeIconSize 0
+
+class AircraftModelController {
+    + updateModelImage(modelName: String, file: MultipartFile): ResponseEntity<EntityModel<AircraftModelViewDTO>>
+}
+
+class AircraftModelService {
+    - saveImageLocally(file: MultipartFile): String
+    + updateModelImage(modelName: String, file: MultipartFile): AircraftModelViewDTO
+}
+
+interface AircraftModelRepository <<Repository>> {
+    + findByModelName(modelName: ModelName): Optional<AircraftModel>
+    + save(model: AircraftModel): AircraftModel
+}
+
+class AircraftModel <<Entity>> <<Root>> {
+    - modelPhotoUrl: String
+    + updateImage(newImagePath: String)
+}
+
+class AircraftModelViewDTO <<DTO>> {
+    + modelName: String
+    + modelPhotoUrl: String
+}
+
+AircraftModelController ..> AircraftModelViewDTO : produces >
+AircraftModelController --> AircraftModelService : uses >
+
+AircraftModelService ..> AircraftModelViewDTO : creates >
+AircraftModelService --> AircraftModelRepository : uses >
+AircraftModelService --> AircraftModel : updates >
+
+AircraftModelRepository --> AircraftModel : persists >
+@enduml

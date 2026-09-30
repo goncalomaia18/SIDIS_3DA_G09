@@ -1,0 +1,66 @@
+@startuml
+skinparam style strictuml
+skinparam packageStyle rectangle
+title CD-US105
+
+package "API Layer" {
+    class AircraftController {
+        + updateStatus(registrationNumber: String, dto: UpdateAircraftStatusDTO): ResponseEntity<EntityModel<AircraftViewDTO>>
+    }
+}
+
+package "Application Layer" {
+    class AircraftService {
+        + updateAircraftStatus(regNum: String, dto: UpdateAircraftStatusDTO): AircraftViewDTO
+    }
+    class UpdateAircraftStatusDTO <<DTO>> {
+        + status: String
+    }
+    class AircraftViewDTO <<DTO>> {
+        + registrationNumber: String
+        + modelName: String
+        + manufacturingDate: LocalDate
+        + seatingCapacity: Integer
+        + status: String
+        + modelPhotoUrl: String
+    }
+}
+
+package "Domain Layer" {
+    class Aircraft <<Entity>> <<Root>> {
+        - pk: Long
+        - version: Long
+        - manufacturingDate: LocalDate
+        - actualSeatingCapacity: Integer
+        - totalFlightHours: Double
+        + updateStatus(newStatus: AircraftStatus): void
+    }
+    class RegistrationNumber <<Value Object>> {
+        - number: String
+    }
+    enum AircraftStatus <<Enum>> {
+        ACTIVE
+        INACTIVE
+        UNDER_MAINTENANCE
+    }
+}
+
+package "Infrastructure Layer" {
+    interface AircraftRepository <<Repository>> {
+        + findByRegistrationNumber(registrationNumber: RegistrationNumber): Optional<Aircraft>
+        + save(aircraft: Aircraft): Aircraft
+    }
+}
+
+AircraftController .down.> UpdateAircraftStatusDTO : uses
+AircraftController .down.> AircraftService : calls
+AircraftService .down.> UpdateAircraftStatusDTO : reads
+AircraftService .down.> AircraftViewDTO : creates
+AircraftService .down.> RegistrationNumber : creates
+AircraftService .down.> AircraftStatus : uses
+AircraftService .down.> AircraftRepository : uses
+AircraftService .down.> Aircraft : updates
+
+Aircraft *-- "1" RegistrationNumber
+Aircraft *-- "1" AircraftStatus
+@enduml

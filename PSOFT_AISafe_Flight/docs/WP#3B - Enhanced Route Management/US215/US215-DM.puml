@@ -1,0 +1,18 @@
+@startuml
+skinparam classAttributeIconSize 0
+hide empty members
+title US215-DM
+
+package "Route Aggregate" {
+    class Route <<Entity>> <<Root>> {
+        - minimumRange: Double
+    }
+
+    enum RouteStatus <<Enumeration>> {
+        ACTIVE
+        INACTIVE
+    }
+
+    Route "1" --> "1" RouteStatus : has >
+}
+@enduml

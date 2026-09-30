@@ -1,0 +1,14 @@
+@startuml
+skinparam style strictuml
+autonumber
+actor "ATCC / Backoffice" as ATCC
+participant "AISafe API" as SYS
+
+title SSD - US110
+
+ATCC -> SYS : POST /api/routes \n(CreateRouteDTO)
+activate SYS
+SYS --> ATCC : 201 Created \n(EntityModel<RouteViewDTO> + HATEOAS Links)
+deactivate SYS
+
+@enduml
