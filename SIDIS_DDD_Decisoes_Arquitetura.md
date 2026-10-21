@@ -10,7 +10,7 @@ O projeto parte da aplicação **AISafe Flight Management System**,
 desenvolvida anteriormente no âmbito de Projeto de Software (PSOFT). A
 aplicação disponibiliza APIs REST para gestão de:
 
--   Aircraft models e aircraft instances;
+-   Aircraft models e aircraft instances;[SIDIS_DDD_Decisoes_Arquitetura.md](SIDIS_DDD_Decisoes_Arquitetura.md)
 -   Airports;
 -   Flight routes;
 -   Maintenance records e maintenance templates;
