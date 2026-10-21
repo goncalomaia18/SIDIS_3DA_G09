@@ -1,90 +1,85 @@
+
 package pt.isep.sidis.flightoperations.application;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import pt.isep.sidis.flightoperations.application.dto.CreateScheduledFlightDTO;
 import pt.isep.sidis.flightoperations.application.dto.RouteUtilizationDTO;
 import pt.isep.sidis.flightoperations.application.dto.ScheduledFlightViewDTO;
-import pt.isep.sidis.flightoperations.domain.*;
-import pt.isep.sidis.flightoperations.repositories.*;
+import pt.isep.sidis.flightoperations.domain.ScheduledFlight;
+import pt.isep.sidis.flightoperations.repositories.ScheduledFlightRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ScheduledFlightService {
 
     private final ScheduledFlightRepository flightRepository;
-    private final RouteRepository routeRepository;
-    private final AircraftRepository aircraftRepository;
 
-    public ScheduledFlightService(ScheduledFlightRepository flightRepository,
-                                  RouteRepository routeRepository,
-                                  AircraftRepository aircraftRepository) {
+    public ScheduledFlightService(
+            ScheduledFlightRepository flightRepository) {
+
         this.flightRepository = flightRepository;
-        this.routeRepository = routeRepository;
-        this.aircraftRepository = aircraftRepository;
     }
 
     @Transactional
-    public ScheduledFlightViewDTO scheduleFlight(CreateScheduledFlightDTO dto) {
-        Route route = routeRepository.findByRouteId(new RouteId(dto.routeId()))
-                .orElseThrow(() -> new IllegalArgumentException("Route not found: " + dto.routeId()));
+    public ScheduledFlightViewDTO scheduleFlight(
+            CreateScheduledFlightDTO dto) {
 
-        Aircraft aircraft = aircraftRepository.findByRegistrationNumber(new RegistrationNumber(dto.registrationNumber()))
-                .orElseThrow(() -> new IllegalArgumentException("Aircraft not found: " + dto.registrationNumber()));
+        LocalDateTime dateTime =
+                LocalDateTime.parse(dto.scheduledDateTime());
 
-        if (aircraft.getStatus() != AircraftStatus.ACTIVE) {
-            throw new IllegalStateException("Aircraft is not available. Status: " + aircraft.getStatus());
-        }
-
-        if (route.getOrigin().getStatus() != AirportStatus.OPERATIONAL ||
-                route.getDestination().getStatus() != AirportStatus.OPERATIONAL) {
-            throw new IllegalStateException("One of the airports is not operational.");
-        }
-
-
-        if (aircraft.getActualSeatingCapacity() < route.getMinimumCapacity()) {
-            throw new IllegalArgumentException("Aircraft does not meet route requirements: insufficient seating capacity.");
-        }
-
-        if (aircraft.getAircraftModel().getMaximumRange() < route.getMinimumRange()) {
-            throw new IllegalArgumentException("Aircraft does not meet route requirements: insufficient range.");
-        }
-
-        // ------------------------------------------------------------------
-
-        LocalDateTime dateTime = LocalDateTime.parse(dto.scheduledDateTime());
-        ScheduledFlight flight = new ScheduledFlight(route, aircraft, dateTime);
-        ScheduledFlight savedFlight = flightRepository.save(flight);
-
-        return new ScheduledFlightViewDTO(
-                savedFlight.getPk(),
-                savedFlight.getRoute().getRouteId().id(),
-                savedFlight.getAircraft().getRegistrationNumber().number(),
-                savedFlight.getScheduledDateTime().toString(),
-                savedFlight.getStatus().name()
+        ScheduledFlight flight = new ScheduledFlight(
+                dto.routeId(),
+                dto.registrationNumber(),
+                dateTime
         );
+
+        ScheduledFlight savedFlight =
+                flightRepository.save(flight);
+
+        return toViewDTO(savedFlight);
     }
 
     @Transactional(readOnly = true)
-    public List<ScheduledFlightViewDTO> getScheduledFlightsByAircraft(String registrationNumber) {
-        RegistrationNumber regNum = new RegistrationNumber(registrationNumber.trim().toUpperCase());
-        return flightRepository.findByAircraft_RegistrationNumber(regNum).stream()
-                .map(f -> new ScheduledFlightViewDTO(
-                        f.getPk(),
-                        f.getRoute().getRouteId().id(),
-                        f.getAircraft().getRegistrationNumber().number(),
-                        f.getScheduledDateTime().toString(),
-                        f.getStatus().name()))
-                .collect(Collectors.toList());
+    public List<ScheduledFlightViewDTO> getScheduledFlightsByAircraft(
+            String registrationNumber) {
+
+        String normalizedRegistration =
+                registrationNumber.trim().toUpperCase();
+
+        return flightRepository
+                .findByAircraftRegistrationNumber(
+                        normalizedRegistration)
+                .stream()
+                .map(this::toViewDTO)
+                .toList();
     }
 
     @Transactional(readOnly = true)
     public List<RouteUtilizationDTO> getRouteUtilizationReport() {
-        return flightRepository.countFlightsGroupedByRoute().stream()
-                .map(obj -> new RouteUtilizationDTO((String) obj[0], (Long) obj[1]))
-                .collect(Collectors.toList());
+
+        return flightRepository
+                .countFlightsGroupedByRoute()
+                .stream()
+                .map(result -> new RouteUtilizationDTO(
+                        (String) result[0],
+                        ((Number) result[1]).longValue()
+                ))
+                .toList();
+    }
+
+    private ScheduledFlightViewDTO toViewDTO(
+            ScheduledFlight flight) {
+
+        return new ScheduledFlightViewDTO(
+                flight.getPk(),
+                flight.getRouteId(),
+                flight.getAircraftRegistrationNumber(),
+                flight.getScheduledDateTime().toString(),
+                flight.getStatus().name()
+        );
     }
 }
