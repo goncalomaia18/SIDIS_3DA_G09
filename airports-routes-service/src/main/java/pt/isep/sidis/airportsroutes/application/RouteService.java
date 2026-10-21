@@ -173,7 +173,10 @@ public class RouteService {
                 route.getOrigin().getIataCode().code(),
                 route.getDestination().getIataCode().code(),
                 route.getStatus().name(),
-                route.getMinimumCapacity()
+                route.getMinimumCapacity(),
+                route.getMinimumRange(),
+                route.getOrigin().getStatus().name(),
+                route.getDestination().getStatus().name()
         );
     }
 
