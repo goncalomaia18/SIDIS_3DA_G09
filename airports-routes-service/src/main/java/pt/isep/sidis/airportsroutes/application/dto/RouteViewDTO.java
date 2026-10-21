@@ -5,5 +5,9 @@ public record RouteViewDTO(
         String originIata,
         String destinationIata,
         String status,
-        Integer minimumCapacity
-) {}
+        Integer minimumCapacity,
+        Double minimumRange,
+        String originAirportStatus,
+        String destinationAirportStatus
+) {
+}

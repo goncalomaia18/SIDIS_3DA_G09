@@ -100,12 +100,16 @@ public class FastestRouteStrategy implements RouteSearchStrategy {
 
         for (int i = 0; i < path.size(); i++) {
             Route route = path.get(i);
+
             legDTOs.add(new RouteViewDTO(
                     route.getRouteId().id(),
                     route.getOrigin().getIataCode().code(),
                     route.getDestination().getIataCode().code(),
                     route.getStatus().name(),
-                    route.getMinimumCapacity()
+                    route.getMinimumCapacity(),
+                    route.getMinimumRange(),
+                    route.getOrigin().getStatus().name(),
+                    route.getDestination().getStatus().name()
             ));
 
             totalTime += (route.getEstimatedFlightTime() != null) ? route.getEstimatedFlightTime() : 0;
