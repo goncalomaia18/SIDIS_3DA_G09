@@ -1,0 +1,16 @@
+@startuml
+skinparam componentStyle uml2
+
+package "Componente de Aeronaves (Cloning)" {
+    [Aircraft Instance 1] as Inst1 <<instance>>
+    [Aircraft Instance 2] as Inst2 <<instance>>
+}
+
+interface "REST API Aircraft" as ApiAircraft
+
+ApiAircraft -- Inst1
+ApiAircraft -- Inst2
+
+Inst1 --> Inst2 : Encaminhamento / Forwarding (HTTP)[cite: 25, 26]
+Inst2 --> Inst1 : Encaminhamento / Forwarding (HTTP)[cite: 25, 26]
+@enduml

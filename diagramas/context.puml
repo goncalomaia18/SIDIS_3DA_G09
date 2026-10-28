@@ -1,0 +1,19 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Utilizador / Administrador" as User
+
+package "Ecossistema Externo" {
+    [Serviço de Autenticação] as Auth
+    [Sistema de Notificações] as Notif
+}
+
+rectangle "AISafe Flight Management System\n(Sistema Distribuído)" {
+    [Sistema Central SIDIS] as System
+}
+
+User --> System : Gerو voos, rotas e aeronaves[cite: 29]
+System --> Auth : Valida credenciais
+System --> Notif : Envia alertas operacionais
+@enduml
