@@ -1,0 +1,53 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+package "Componente: Aircraft Management" {
+    class Aircraft {
+        - id: Long
+        - model: String
+        - capacity: int
+        - status: String
+        + getId(): Long
+        + getModel(): String
+        + updateStatus(newStatus: String): void
+    }
+
+    class AircraftController {
+        - service: AircraftService
+        + getAircraftById(id: Long): Aircraft
+        + createAircraft(dto: AircraftDto): Aircraft
+    }
+
+    class AircraftService {
+        - repository: AircraftRepository
+        - restTemplate: RestTemplate
+        + findById(id: Long): Aircraft
+        + forwardToPeer(id: Long): Aircraft
+    }
+
+    AircraftController --> AircraftService
+    AircraftService --> Aircraft
+}
+
+package "Componente: Airports & Routes" {
+    class Airport {
+        - code: String
+        - name: String
+        - location: String
+        + getCode(): String
+    }
+
+    class FlightRoute {
+        - routeId: Long
+        - origin: String
+        - destination: String
+        - distance: double
+        + getRouteId(): Long
+    }
+
+    FlightRoute --> Airport : origin / destination
+}
+
+AircraftService ..> FlightRoute : HTTP/REST (Collaboration)[cite: 25]
+
+@enduml

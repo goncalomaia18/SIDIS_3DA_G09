@@ -1,0 +1,25 @@
+@startuml
+autonumber
+actor Client
+participant "AircraftInstance1\n(Porta 8081)" as Inst1
+participant "AircraftInstance2\n(Porta 8082)" as Inst2
+
+Client -> Inst1: GET /api/aircrafts/123[cite: 25]
+activate Inst1
+
+Inst1 -> Inst1: Verifica base de dados local (Não encontrado)[cite: 25]
+
+alt Recurso não existe localmente
+    Inst1 -> Inst2: GET /api/aircrafts/123 (Forwarding HTTP)[cite: 25, 26]
+    activate Inst2
+    Inst2 -> Inst2: Consulta base de dados local (Encontrado)[cite: 25]
+    Inst2 --> Inst1: Retorna dados da Aeronave[cite: 25]
+    deactivate Inst2
+
+    Inst1 --> Client: Retorna dados ao Cliente[cite: 25]
+else Recurso existe localmente
+    Inst1 --> Client: Retorna dados diretos[cite: 25]
+end
+
+deactivate Inst1
+@enduml

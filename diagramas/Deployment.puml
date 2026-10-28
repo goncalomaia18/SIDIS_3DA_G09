@@ -1,0 +1,17 @@
+@startuml
+node "Docker Host / Servidor" {
+    node "Network: sidis-net" {
+        node "Container: aircraft-instance-1" {
+            [Spring Boot App (Port 8081)] as App1
+        }
+        node "Container: aircraft-instance-2" {
+            [Spring Boot App (Port 8082)] as App2
+        }
+        database "MySQL / H2 Database" as DB
+    }
+}
+
+App1 --> DB : Acede a dados
+App2 --> DB : Acede a dados
+App1 <--> App2 : HTTP REST (Peer Forwarding)[cite: 25, 26]
+@enduml
