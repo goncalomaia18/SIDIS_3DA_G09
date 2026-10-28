@@ -13,6 +13,7 @@ import pt.isep.sidis.flightoperations.client.AircraftClient;
 import pt.isep.sidis.flightoperations.client.RouteClient;
 import pt.isep.sidis.flightoperations.domain.ScheduledFlight;
 import pt.isep.sidis.flightoperations.repositories.ScheduledFlightRepository;
+import pt.isep.sidis.flightoperations.client.FlightPeerClient;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,16 +24,21 @@ public class ScheduledFlightService {
     private final ScheduledFlightRepository flightRepository;
     private final RouteClient routeClient;
     private final AircraftClient aircraftClient;
+    private final FlightPeerClient flightPeerClient;
+
 
     public ScheduledFlightService(
             ScheduledFlightRepository flightRepository,
             RouteClient routeClient,
-            AircraftClient aircraftClient) {
+            AircraftClient aircraftClient,
+            FlightPeerClient flightPeerClient) {
 
         this.flightRepository = flightRepository;
         this.routeClient = routeClient;
         this.aircraftClient = aircraftClient;
+        this.flightPeerClient = flightPeerClient;
     }
+
 
     @Transactional
     public ScheduledFlightViewDTO scheduleFlight(
@@ -126,18 +132,27 @@ public class ScheduledFlightService {
         return toViewDTO(savedFlight);
     }
 
+
     @Transactional(readOnly = true)
-    public List<ScheduledFlightViewDTO> getScheduledFlightsByAircraft(
-            String registrationNumber) {
-
-        String normalizedRegistration =
-                registrationNumber.trim().toUpperCase();
-
+    public List<ScheduledFlightViewDTO> getLocalFlightsByAircraft(String registrationNumber) {
         return flightRepository
-                .findByAircraftRegistrationNumber(normalizedRegistration)
+                .findByAircraftRegistrationNumber(registrationNumber.trim().toUpperCase())
                 .stream()
                 .map(this::toViewDTO)
                 .toList();
+    }
+
+    public List<ScheduledFlightViewDTO> getScheduledFlightsByAircraft(String registrationNumber) {
+
+        List<ScheduledFlightViewDTO> localFlights =
+                getLocalFlightsByAircraft(registrationNumber);
+
+        if (!localFlights.isEmpty()) {
+            return localFlights;
+        }
+
+        return flightPeerClient.findFlightsOnPeers(
+                registrationNumber.trim().toUpperCase());
     }
 
     @Transactional(readOnly = true)
