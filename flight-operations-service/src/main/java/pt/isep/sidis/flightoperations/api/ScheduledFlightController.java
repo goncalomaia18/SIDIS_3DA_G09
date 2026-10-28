@@ -68,4 +68,15 @@ public class ScheduledFlightController {
 
         return ResponseEntity.ok(report);
     }
+
+
+    @GetMapping("/local/aircraft/{registrationNumber}")
+    public ResponseEntity<List<ScheduledFlightViewDTO>> getLocalFlightsByAircraft(
+            @PathVariable String registrationNumber) {
+
+        return ResponseEntity.ok(
+                service.getLocalFlightsByAircraft(registrationNumber));
+    }
+
+
 }
