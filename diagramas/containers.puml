@@ -1,0 +1,26 @@
+@startuml
+skinparam componentStyle rectangle
+
+actor "Cliente / Utilizador" as User
+
+node "Infraestrutura Distribuída" {
+    component "Componente 1: Gestão de Aeronaves" as Comp1
+    database "Base de Dados 1" as DB1
+
+    component "Componente 2: Aeroportos" as Comp2
+    database "Base de Dados 2" as DB2
+
+    component "Componente 3: Rotas e Voos" as Comp3
+    database "Base de Dados 3" as DB3
+}
+
+User --> Comp1 : HTTP/REST
+User --> Comp2 : HTTP/REST
+User --> Comp3 : HTTP/REST
+
+Comp1 --> DB1 : JDBC / JPA
+Comp2 --> DB2 : JDBC / JPA
+Comp3 --> DB3 : JDBC / JPA
+
+Comp3 ..> Comp1 : HTTP/REST (Colaboração / Forwarding)[cite: 25]
+@enduml
