@@ -48,6 +48,6 @@ package "Componente: Airports & Routes" {
     FlightRoute --> Airport : origin / destination
 }
 
-AircraftService ..> FlightRoute : HTTP/REST (Collaboration)[cite: 25]
+AircraftService ..> FlightRoute : HTTP/REST (Collaboration)
 
 @enduml

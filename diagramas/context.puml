@@ -13,7 +13,7 @@ rectangle "AISafe Flight Management System\n(Sistema Distribuído)" {
     [Sistema Central SIDIS] as System
 }
 
-User --> System : Gerو voos, rotas e aeronaves[cite: 29]
+User --> System : Gerو voos, rotas e aeronaves
 System --> Auth : Valida credenciais
 System --> Notif : Envia alertas operacionais
 @enduml
