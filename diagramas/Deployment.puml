@@ -13,5 +13,5 @@ node "Docker Host / Servidor" {
 
 App1 --> DB : Acede a dados
 App2 --> DB : Acede a dados
-App1 <--> App2 : HTTP REST (Peer Forwarding)[cite: 25, 26]
+App1 <--> App2 : HTTP REST (Peer Forwarding)
 @enduml

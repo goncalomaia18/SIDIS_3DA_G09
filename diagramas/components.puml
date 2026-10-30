@@ -11,6 +11,6 @@ interface "REST API Aircraft" as ApiAircraft
 ApiAircraft -- Inst1
 ApiAircraft -- Inst2
 
-Inst1 --> Inst2 : Encaminhamento / Forwarding (HTTP)[cite: 25, 26]
-Inst2 --> Inst1 : Encaminhamento / Forwarding (HTTP)[cite: 25, 26]
+Inst1 --> Inst2 : Encaminhamento / Forwarding (HTTP)
+Inst2 --> Inst1 : Encaminhamento / Forwarding (HTTP)
 @enduml
