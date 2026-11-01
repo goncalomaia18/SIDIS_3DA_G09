@@ -150,53 +150,53 @@ O material do professor identifica como entregáveis o **System Context Diagram*
 
 ### 4.1. C4 Level 1 — System Context
 
-**Diagrama: Figura 1 — System Context  ![System Context](./diagramas/svg/System_Context.svg)**
+**Diagrama: Figura 1 — System Context  ![](./diagramas/svg/System_Context.svg)**
 
 
 ### 4.2. C4 Level 2 — Container Diagram
 
-**Diagrama: Figura 2 — Container Diagram  ![System Context](./diagramas/svg/Container_Diagram.svg)**
+**Diagrama: Figura 2 — Container Diagram  ![](./diagramas/svg/Container_Diagram.svg)**
 
 
 ### 4.3. Logical View — Component Diagram e Class Diagrams
 
-**Diagrama: Figura 3 — Logical Component View  ![System Context](./diagramas/svg/Logical_Components_View.svg)**
+**Diagrama: Figura 3 — Logical Component View  ![](./diagramas/svg/Logical_Components_View.svg)**
 
 
 #### 4.3.1. Flight Operations
 
-**Diagrama: Figura 4 — Flight Operations Class Diagram  ![System Context](./diagramas/svg/Flight_Operations_Class_Diagram.svg)**
+**Diagrama: Figura 4 — Flight Operations Class Diagram  ![](./diagramas/svg/Flight_Operations_Class_Diagram.svg)**
 
 
 #### 4.3.2. Aircraft & Maintenance
 
-**Diagrama: Figura 5 — Aircraft & Maintenance Class Diagram  ![System Context](./diagramas/svg/Aircraft_Maintenance_Class_Diagram.svg)**
+**Diagrama: Figura 5 — Aircraft & Maintenance Class Diagram  ![](./diagramas/svg/Aircraft_Maintenance_Class_Diagram.svg)**
 
 #### 4.3.3. Airports & Routes
 
-**Diagrama: Figura 6 — Airports & Routes Class Diagram  ![System Context](./diagramas/svg/Airport_Routes_Class_Diagram.svg)**
+**Diagrama: Figura 6 — Airports & Routes Class Diagram  ![](./diagramas/svg/Airport_Routes_Class_Diagram.svg)**
 
 
 ### 4.4. Physical View — Deployment Diagram
 
-**Diagrama: Figura 7 — Physical Deployment  ![System Context](./diagramas/svg/Physical_Deployment.svg)**
+**Diagrama: Figura 7 — Physical Deployment  ![](./diagramas/svg/Physical_Deployment.svg)**
 
 
 ### 4.5. Cenários-chave (+1) — Sequence Diagrams
 
 #### Cenário 1 — Forwarding entre instâncias
 
-**Diagrama: Figura 8 — Forwarding  ![System Context](./diagramas/svg/Sequence_Forwarding.svg)**
+**Diagrama: Figura 8 — Forwarding  ![](./diagramas/svg/Sequence_Forwarding.svg)**
 
 
 #### Cenário 2 — Colaboração e failover entre componentes
 
-**Diagrama: Figura 9 — Collaboration ![System Context](./diagramas/svg/Sequence_Collaboration.svg)**
+**Diagrama: Figura 9 — Collaboration ![](./diagramas/svg/Sequence_Collaboration.svg)**
 
 
 #### Cenário 3 — Retry e falha do peer
 
-**Diagrama: Figura 10 — Retry e falha  ![System Context](./diagramas/svg/Sequence_Peer_Failure.svg)**
+**Diagrama: Figura 10 — Retry e falha  ![](./diagramas/svg/Sequence_Peer_Failure.svg)**
 
 
 ## 5. Instruções de deployment
@@ -272,30 +272,20 @@ GET http://localhost:8081/api/aircraft-models/instances/local/CS-TEST1
 
 ## 6. Evidências e entregáveis associados
 
+**Exemplo de Sequence_Peer_Failure**:
 
-| Componente | Testes documentados |
-|---|---|
-| Flight Operations | Disponibilidade; isolamento; forwarding; peer indisponível com retries |
-| Airports & Routes | Disponibilidade; isolamento; forwarding; peer indisponível (`503`, duas tentativas) |
-| Aircraft & Maintenance | Disponibilidade; isolamento; forwarding; peer indisponível (`503`, duas tentativas) |
-| Entre componentes | Validação de referências, failover para instância alternativa e indisponibilidade total |
+**Instancia 8085 executa um GET** para encontrar um determinado modelo de avião e a **instancia 8081 encontra-se desligada**. **Instancia 8085** não tem esse modelo na sua base de dados local, logo tenta contactar a base de dados da 8081,mas esta encontra-se indisponível logo dá estado **503:Service Unveilable**:
 
-**Atenção:** o PDF do professor pede explicitamente uma **coleção Postman exportada**, com cenários de acesso local, forwarding e falhas. Os screenshots do Hoppscotch não substituem este ficheiro. É necessário criar/exportar a coleção e confirmar os testes na versão final do código.
+![image](./Documentacao/image.png)
+![image2](./Documentacao/image2.png)
 
 ## 7. Limitações conhecidas
 
 1. **Sem replicação de dados:** cada instância mantém a sua própria base H2; o forwarding não sincroniza alterações.
 2. **Persistência volátil:** os dados H2 em memória são perdidos após reinício, salvo configuração diferente.
 3. **Falhas parciais:** os retries e o failover reduzem indisponibilidades, mas não garantem acesso a dados existentes apenas numa instância desligada.
-4. **Códigos HTTP heterogéneos:** os serviços podem responder de forma diferente perante ausência de dados e indisponibilidade do peer; o comportamento deve ser documentado por endpoint.
-5. **Sem Docker Compose:** a implementação testada utiliza processos locais e variáveis de ambiente; Docker é opcional.
-7. **Diagramas de classes:** necessitam de confrontação final com as entidades JPA e classes efetivas do repositório.
+4. **Sem Docker Compose:** a implementação testada utiliza processos locais e variáveis de ambiente; Docker é opcional.
 
 ## 8. Conclusão
 
 O Assignment 1 demonstra a decomposição do AISafe em três componentes distribuídos, executados em seis instâncias independentes. A comunicação REST, a consulta local, o forwarding para peers e os mecanismos de retry e failover foram exercitados em cenários de teste. A arquitetura distingue corretamente componentes, aplicações executáveis e instâncias, e reconhece que a redundância de processos não equivale à replicação dos dados. A documentação C4/UML e as instruções de deployment tornam explícitas as principais decisões arquiteturais e as limitações observadas.
-
-## 9. Checklist antes da entrega
-
-
-- [ ] Juntar `docs/TESTING.md` e screenshots reais.
