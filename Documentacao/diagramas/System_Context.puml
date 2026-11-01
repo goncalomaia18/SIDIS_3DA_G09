@@ -1,0 +1,9 @@
+@startuml
+title AISafe — C4 Level 1: System Context
+left to right direction
+actor "Administrador" as Admin
+actor "Operador" as Operator
+rectangle "AISafe Flight Management System\nSistema distribuído" as AISafe
+Admin --> AISafe : Gestão e administração
+Operator --> AISafe : Consulta e operações
+@enduml

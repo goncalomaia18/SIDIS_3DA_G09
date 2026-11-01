@@ -1,0 +1,30 @@
+@startuml
+title Cenário 2 — Colaboração e failover entre componentes
+actor Cliente
+participant "Flight Operations\n:8080" as F
+participant "Airports & Routes\n:8083" as R1
+participant "Airports & Routes\n:8084" as R2
+participant "Aircraft & Maintenance\n:8081" as A1
+participant "Aircraft & Maintenance\n:8085" as A2
+database "H2 Flight Operations" as DB
+Cliente -> F : POST /api/scheduled-flights
+F -> R1 : valida routeId
+alt :8083 indisponível
+  R1 --x F : erro de ligação
+  F -> R2 : retry/failover — valida routeId
+  R2 --> F : rota válida
+else :8083 disponível
+  R1 --> F : rota válida
+end
+F -> A1 : valida registrationNumber
+alt :8081 indisponível
+  A1 --x F : erro de ligação
+  F -> A2 : retry/failover — valida aeronave
+  A2 --> F : aeronave válida
+else :8081 disponível
+  A1 --> F : aeronave válida
+end
+F -> DB : guarda voo
+DB --> F : criado
+F --> Cliente : 201 Created
+@enduml

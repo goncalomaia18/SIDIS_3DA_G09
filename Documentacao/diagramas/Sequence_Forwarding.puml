@@ -1,0 +1,16 @@
+@startuml
+title Cenário 1 — Forwarding entre instâncias Flight Operations
+actor Cliente
+participant "Flight Operations\n:8080" as F1
+database "H2 :8080" as D1
+participant "Flight Operations\n:8082" as F2
+database "H2 :8082" as D2
+Cliente -> F1 : GET /api/scheduled-flights/aircraft/CS-TPA
+F1 -> D1 : consulta local
+D1 --> F1 : sem resultados
+F1 -> F2 : GET /api/scheduled-flights/local/aircraft/CS-TPA
+F2 -> D2 : consulta local
+D2 --> F2 : voo encontrado
+F2 --> F1 : 200 + JSON
+F1 --> Cliente : 200 + JSON
+@enduml

@@ -1,0 +1,23 @@
+@startuml
+title AISafe — C4 Level 2: Container Diagram
+left to right direction
+skinparam componentStyle rectangle
+actor "Cliente REST\n(Hoppscotch / Postman)" as Client
+package "AISafe" {
+ component "Flight Operations\nSpring Boot" as F
+ component "Aircraft & Maintenance\nSpring Boot" as A
+ component "Airports & Routes\nSpring Boot" as R
+ database "H2 — Flight Operations" as FD
+ database "H2 — Aircraft & Maintenance" as AD
+ database "H2 — Airports & Routes" as RD
+}
+Client --> F : HTTP/JSON
+Client --> A : HTTP/JSON
+Client --> R : HTTP/JSON
+F --> A : REST / valida aeronave
+F --> R : REST / valida rota
+F --> FD : JPA
+A --> AD : JPA
+R --> RD : JPA
+
+@enduml
