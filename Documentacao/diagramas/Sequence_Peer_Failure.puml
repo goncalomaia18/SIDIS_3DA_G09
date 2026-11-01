@@ -1,0 +1,15 @@
+@startuml
+title Cenário 3 — Retry e indisponibilidade do peer
+actor Cliente
+participant "Aircraft & Maintenance\n:8085" as A2
+database "H2 :8085" as DB
+participant "Aircraft & Maintenance\n:8081 (desligada)" as A1
+Cliente -> A2 : GET /api/aircraft-models/instances/CS-TEST1
+A2 -> DB : pesquisa local
+DB --> A2 : não encontrado
+loop 2 tentativas
+  A2 -> A1 : GET /api/aircraft-models/instances/local/CS-TEST1
+  A1 --x A2 : ligação recusada
+end
+A2 --> Cliente : 503 Service Unavailable
+@enduml

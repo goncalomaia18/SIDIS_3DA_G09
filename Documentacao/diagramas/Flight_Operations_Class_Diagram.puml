@@ -1,0 +1,22 @@
+@startuml
+title Flight Operations — UML Class Diagram (conceptual)
+hide empty members
+class ScheduledFlight {
+  routeId
+  registrationNumber
+  scheduledDateTime
+}
+class ScheduledFlightController <<REST controller>>
+class ScheduledFlightService <<application service>>
+interface ScheduledFlightRepository <<repository>>
+class FlightPeerClient <<REST peer client>>
+class AircraftClient <<REST client>>
+class RouteClient <<REST client>>
+ScheduledFlightController --> ScheduledFlightService
+ScheduledFlightService --> ScheduledFlightRepository
+ScheduledFlightRepository ..> ScheduledFlight
+ScheduledFlightService --> FlightPeerClient
+ScheduledFlightService --> AircraftClient
+ScheduledFlightService --> RouteClient
+
+@enduml

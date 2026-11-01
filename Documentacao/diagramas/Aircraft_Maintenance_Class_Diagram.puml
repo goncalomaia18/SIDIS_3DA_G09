@@ -1,0 +1,26 @@
+@startuml
+title Aircraft & Maintenance — UML Class Diagram (conceptual)
+hide empty members
+class AircraftModel
+class Aircraft {
+  registrationNumber
+  manufacturingDate
+  status
+}
+class MaintenanceTemplate
+class MaintenanceRecord
+class MaintenancePart
+class AircraftController <<REST controller>>
+class AircraftService <<application service>>
+interface AircraftRepository <<repository>>
+interface AircraftModelRepository <<repository>>
+class AircraftPeerClient <<REST peer client>>
+Aircraft "*" --> "1" AircraftModel : model
+MaintenanceRecord "*" --> "1" Aircraft : aircraft
+MaintenanceRecord "*" --> "0..1" MaintenanceTemplate : template
+MaintenanceRecord "1" --> "*" MaintenancePart : parts
+AircraftController --> AircraftService
+AircraftService --> AircraftRepository
+AircraftService --> AircraftModelRepository
+AircraftService --> AircraftPeerClient
+@enduml

@@ -1,0 +1,26 @@
+@startuml
+title AISafe — UML Physical Deployment (implementação real)
+skinparam componentStyle rectangle
+node {
+  node "JVM — Flight Operations" {
+    artifact "Instância :8080\nH2 própria" as F1
+    artifact "Instância :8082\nH2 própria" as F2
+  }
+  node "JVM — Aircraft & Maintenance" {
+    artifact "Instância :8081\nH2 própria" as A1
+    artifact "Instância :8085\nH2 própria" as A2
+  }
+  node "JVM — Airports & Routes" {
+    artifact "Instância :8083\nH2 própria" as R1
+    artifact "Instância :8084\nH2 própria" as R2
+  }
+}
+F1 <--> F2 : HTTP GET forwarding
+A1 <--> A2 : HTTP GET forwarding
+R1 <--> R2 : HTTP GET forwarding
+F1 ..> A1 : REST
+F1 ..> R1 : REST
+F2 ..> A2 : REST
+F2 ..> R2 : REST
+
+@enduml

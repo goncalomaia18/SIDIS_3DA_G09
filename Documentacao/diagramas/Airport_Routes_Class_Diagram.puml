@@ -1,0 +1,20 @@
+@startuml
+title Airports & Routes — UML Class Diagram (conceptual)
+hide empty members
+class Airport
+class Runway
+class Route {
+  routeId
+}
+class RouteController <<REST controller>>
+class RouteService <<application service>>
+interface RouteRepository <<repository>>
+class RoutePeerClient <<REST peer client>>
+Airport "1" -- "*" Runway : runways
+Route --> Airport : origin
+Route --> Airport : destination
+RouteController --> RouteService
+RouteService --> RouteRepository
+RouteService --> RoutePeerClient
+
+@enduml
