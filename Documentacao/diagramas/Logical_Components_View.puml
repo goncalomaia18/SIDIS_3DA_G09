@@ -1,0 +1,38 @@
+@startuml
+title AISafe — Vista Lógica: Componentes e interfaces
+skinparam componentStyle uml2
+package "Flight Operations" {
+  [ScheduledFlightController] as FC
+  [Flight Application Service] as FS
+  [ScheduledFlightRepository] as FR
+  [Flight Peer Client] as FP
+  [AircraftClient] as FA
+  [RouteClient] as FRoute
+  FC --> FS
+  FS --> FR
+  FS --> FP : GET peer local-only
+  FS --> FA : valida aeronave
+  FS --> FRoute : valida rota
+}
+package "Aircraft & Maintenance" {
+  [AircraftController] as AC
+  [AircraftService] as AS
+  [AircraftRepository] as AR
+  [AircraftPeerClient] as AP
+  AC --> AS
+  AS --> AR
+  AS --> AP
+}
+package "Airports & Routes" {
+  [RouteController] as RC
+  [RouteService] as RS
+  [RouteRepository] as RR
+  [RoutePeerClient] as RP
+  RC --> RS
+  RS --> RR
+  RS --> RP
+}
+FA ..> AC : HTTP/REST
+FRoute ..> RC : HTTP/REST
+
+@enduml
