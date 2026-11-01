@@ -231,4 +231,16 @@ public class RouteController {
 
         return new ResponseEntity<>(fileBytes, headers, HttpStatus.OK);
     }
+
+    @GetMapping("/local/{id}")
+    @Operation(summary = "Get route from local instance only")
+    public ResponseEntity<RouteViewDTO> getLocalRouteById(
+            @PathVariable String id) {
+
+        return ResponseEntity.ok(routeService.getLocalRoute(id));
+    }
+
+
+
+
 }

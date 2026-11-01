@@ -11,6 +11,9 @@ import pt.isep.sidis.airportsroutes.domain.*;
 import pt.isep.sidis.airportsroutes.repositories.AirportRepository;
 import pt.isep.sidis.airportsroutes.repositories.RouteHistoryRepository;
 import pt.isep.sidis.airportsroutes.repositories.RouteRepository;
+import pt.isep.sidis.airportsroutes.client.RoutePeerClient;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,15 +28,21 @@ public class RouteService {
     private final AirportRepository airportRepository;
     private final RouteHistoryRepository routeHistoryRepository;
     private final RouteSearchStrategy routeSearchStrategy; // <-- A Estratégia adicionada aqui
+    private final RoutePeerClient routePeerClient;
 
-    public RouteService(RouteRepository routeRepository,
-                        AirportRepository airportRepository,
-                        RouteHistoryRepository routeHistoryRepository,
-                        RouteSearchStrategy routeSearchStrategy) { // <-- E aqui no construtor
+
+    public RouteService(
+            RouteRepository routeRepository,
+            AirportRepository airportRepository,
+            RouteHistoryRepository routeHistoryRepository,
+            RouteSearchStrategy routeSearchStrategy,
+            RoutePeerClient routePeerClient) {
+
         this.routeRepository = routeRepository;
         this.airportRepository = airportRepository;
         this.routeHistoryRepository = routeHistoryRepository;
         this.routeSearchStrategy = routeSearchStrategy;
+        this.routePeerClient = routePeerClient;
     }
 
     // --- US110: Criar uma Rota ---
@@ -79,15 +88,27 @@ public class RouteService {
         return convertToDTO(saved);
     }
 
-    // --- US113: Ver Detalhes de uma Rota Específica ---
-    public RouteViewDTO getRoute(String id) {
+    public RouteViewDTO getLocalRoute(String id) {
+
         RouteId routeId = new RouteId(id);
+
         Route route = routeRepository.findByRouteId(routeId)
-                .orElseThrow(() -> new IllegalArgumentException("Route not found: " + id));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Route not found locally: " + id
+                ));
 
         return convertToDTO(route);
     }
 
+    public RouteViewDTO getRoute(String id) {
+
+        RouteId routeId = new RouteId(id);
+
+        return routeRepository.findByRouteId(routeId)
+                .map(this::convertToDTO)
+                .orElseGet(() -> routePeerClient.findRouteOnPeers(id));
+    }
     // --- US113 e US114: Pesquisar Rotas  ---
     public Page<RouteViewDTO> searchRoutes(String origin, String destination, Pageable pageable) {
         Page<Route> results;

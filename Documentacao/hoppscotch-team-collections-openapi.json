@@ -1,0 +1,2097 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "SIDIS",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/maintenance/templates": {
+      "post": {
+        "summary": "createTemplate",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"pk\": 0,\n  \"templateName\": \"string\",\n  \"templateType\": \"string\",\n  \"flightHoursInterval\": 0,\n  \"calendarDaysInterval\": 0,\n  \"checklist\": {\n    \"pk\": 0,\n    \"title\": \"string\",\n    \"version\": \"string\",\n    \"items\": [\n      {\n        \"taskDescription\": \"string\",\n        \"isMandatory\": true\n      }\n    ]\n  },\n  \"appliesTo\": [\n    {\n      \"modelName\": {\n        \"name\": \"string\"\n      },\n      \"manufacturer\": \"string\",\n      \"defaultSeatingCapacity\": 0,\n      \"fuelCapacity\": 0,\n      \"maximumRange\": 0,\n      \"cruisingSpeed\": 0,\n      \"fuelConsumptionPerHour\": 0,\n      \"modelPhotoUrl\": \"string\",\n      \"operatingHoursRange\": \"string\",\n      \"seatingConfiguration\": \"string\",\n      \"engineType\": \"string\"\n    }\n  ],\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "createTemplate",
+        "tags": [
+          "Aircraft & Maintenance/maintenance-controller"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "templateName": "string",
+                "templateType": "string",
+                "flightHoursInterval": 0,
+                "calendarDaysInterval": 0,
+                "checklistTitle": "string",
+                "checklistVersion": "string",
+                "checklistItems": [
+                  {
+                    "taskDescription": "string",
+                    "isMandatory": true
+                  }
+                ],
+                "applicableModelIds": [
+                  0
+                ]
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/maintenance/records": {
+      "post": {
+        "summary": "registerMaintenance",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"pk\": 0,\n  \"version\": 0,\n  \"description\": \"string\",\n  \"startDate\": \"string\",\n  \"expectedDuration\": 0,\n  \"completionNotes\": \"string\",\n  \"cost\": 0,\n  \"completionDate\": \"string\",\n  \"status\": \"string\",\n  \"componentCategory\": \"string\",\n  \"aircraft\": {\n    \"registrationNumber\": {\n      \"number\": \"string\"\n    },\n    \"model\": {\n      \"modelName\": {\n        \"name\": \"string\"\n      },\n      \"manufacturer\": \"string\",\n      \"defaultSeatingCapacity\": 0,\n      \"fuelCapacity\": 0,\n      \"maximumRange\": 0,\n      \"cruisingSpeed\": 0,\n      \"fuelConsumptionPerHour\": 0,\n      \"modelPhotoUrl\": \"string\",\n      \"operatingHoursRange\": \"string\",\n      \"seatingConfiguration\": \"string\",\n      \"engineType\": \"string\"\n    },\n    \"status\": \"string\",\n    \"manufacturingDate\": \"string\",\n    \"actualSeatingCapacity\": 0,\n    \"totalFlightHours\": 0,\n    \"features\": \"string\",\n    \"aircraftModel\": {\n      \"modelName\": {\n        \"name\": \"string\"\n      },\n      \"manufacturer\": \"string\",\n      \"defaultSeatingCapacity\": 0,\n      \"fuelCapacity\": 0,\n      \"maximumRange\": 0,\n      \"cruisingSpeed\": 0,\n      \"fuelConsumptionPerHour\": 0,\n      \"modelPhotoUrl\": \"string\",\n      \"operatingHoursRange\": \"string\",\n      \"seatingConfiguration\": \"string\",\n      \"engineType\": \"string\"\n    }\n  },\n  \"template\": {\n    \"pk\": 0,\n    \"templateName\": \"string\",\n    \"templateType\": \"string\",\n    \"flightHoursInterval\": 0,\n    \"calendarDaysInterval\": 0,\n    \"checklist\": {\n      \"pk\": 0,\n      \"title\": \"string\",\n      \"version\": \"string\",\n      \"items\": [\n        {\n          \"taskDescription\": \"string\",\n          \"isMandatory\": true\n        }\n      ]\n    },\n    \"appliesTo\": [\n      {\n        \"modelName\": {\n          \"name\": \"string\"\n        },\n        \"manufacturer\": \"string\",\n        \"defaultSeatingCapacity\": 0,\n        \"fuelCapacity\": 0,\n        \"maximumRange\": 0,\n        \"cruisingSpeed\": 0,\n        \"fuelConsumptionPerHour\": 0,\n        \"modelPhotoUrl\": \"string\",\n        \"operatingHoursRange\": \"string\",\n        \"seatingConfiguration\": \"string\",\n        \"engineType\": \"string\"\n      }\n    ]\n  },\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "registerMaintenance",
+        "tags": [
+          "Aircraft & Maintenance/maintenance-controller"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "registrationNumber": "string",
+                "templateId": 0,
+                "description": "string",
+                "expectedDuration": 0,
+                "componentCategory": "string",
+                "startDate": "string",
+                "cost": 0
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/maintenance/records/{id}/complete": {
+      "patch": {
+        "summary": "completeMaintenance",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"pk\": 0,\n  \"version\": 0,\n  \"description\": \"string\",\n  \"startDate\": \"string\",\n  \"expectedDuration\": 0,\n  \"completionNotes\": \"string\",\n  \"cost\": 0,\n  \"completionDate\": \"string\",\n  \"status\": \"string\",\n  \"componentCategory\": \"string\",\n  \"aircraft\": {\n    \"registrationNumber\": {\n      \"number\": \"string\"\n    },\n    \"model\": {\n      \"modelName\": {\n        \"name\": \"string\"\n      },\n      \"manufacturer\": \"string\",\n      \"defaultSeatingCapacity\": 0,\n      \"fuelCapacity\": 0,\n      \"maximumRange\": 0,\n      \"cruisingSpeed\": 0,\n      \"fuelConsumptionPerHour\": 0,\n      \"modelPhotoUrl\": \"string\",\n      \"operatingHoursRange\": \"string\",\n      \"seatingConfiguration\": \"string\",\n      \"engineType\": \"string\"\n    },\n    \"status\": \"string\",\n    \"manufacturingDate\": \"string\",\n    \"actualSeatingCapacity\": 0,\n    \"totalFlightHours\": 0,\n    \"features\": \"string\",\n    \"aircraftModel\": {\n      \"modelName\": {\n        \"name\": \"string\"\n      },\n      \"manufacturer\": \"string\",\n      \"defaultSeatingCapacity\": 0,\n      \"fuelCapacity\": 0,\n      \"maximumRange\": 0,\n      \"cruisingSpeed\": 0,\n      \"fuelConsumptionPerHour\": 0,\n      \"modelPhotoUrl\": \"string\",\n      \"operatingHoursRange\": \"string\",\n      \"seatingConfiguration\": \"string\",\n      \"engineType\": \"string\"\n    }\n  },\n  \"template\": {\n    \"pk\": 0,\n    \"templateName\": \"string\",\n    \"templateType\": \"string\",\n    \"flightHoursInterval\": 0,\n    \"calendarDaysInterval\": 0,\n    \"checklist\": {\n      \"pk\": 0,\n      \"title\": \"string\",\n      \"version\": \"string\",\n      \"items\": [\n        {\n          \"taskDescription\": \"string\",\n          \"isMandatory\": true\n        }\n      ]\n    },\n    \"appliesTo\": [\n      {\n        \"modelName\": {\n          \"name\": \"string\"\n        },\n        \"manufacturer\": \"string\",\n        \"defaultSeatingCapacity\": 0,\n        \"fuelCapacity\": 0,\n        \"maximumRange\": 0,\n        \"cruisingSpeed\": 0,\n        \"fuelConsumptionPerHour\": 0,\n        \"modelPhotoUrl\": \"string\",\n        \"operatingHoursRange\": \"string\",\n        \"seatingConfiguration\": \"string\",\n        \"engineType\": \"string\"\n      }\n    ]\n  },\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "completeMaintenance",
+        "tags": [
+          "Aircraft & Maintenance/maintenance-controller"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "completionNotes": "string"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/maintenance/statistics/turnaround": {
+      "get": {
+        "summary": "getTurnaroundTime",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_embedded\": {\n    \"turnaroundTimeDTOList\": [\n      {\n        \"aircraftModel\": \"string\",\n        \"averageTurnaroundHours\": 0,\n        \"_links\": {}\n      }\n    ]\n  },\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "getTurnaroundTime",
+        "tags": [
+          "Aircraft & Maintenance/maintenance-controller"
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/maintenance/statistics/costs": {
+      "get": {
+        "summary": "getMaintenanceCosts",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_embedded\": {\n    \"maintenanceCostDTOList\": [\n      {\n        \"registrationNumber\": \"string\",\n        \"totalCost\": 0,\n        \"_links\": {}\n      }\n    ]\n  },\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "getMaintenanceCosts",
+        "tags": [
+          "Aircraft & Maintenance/maintenance-controller"
+        ],
+        "parameters": [
+          {
+            "name": "groupBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/maintenance/records/total-hours": {
+      "get": {
+        "summary": "getTotalHours",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "getTotalHours",
+        "tags": [
+          "Aircraft & Maintenance/maintenance-controller"
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/maintenance/records/search": {
+      "get": {
+        "summary": "searchRecords",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_embedded\": {\n    \"maintenanceRecordList\": [\n      {\n        \"pk\": 0,\n        \"version\": 0,\n        \"description\": \"string\",\n        \"startDate\": \"string\",\n        \"expectedDuration\": 0,\n        \"completionNotes\": \"string\",\n        \"cost\": 0,\n        \"completionDate\": \"string\",\n        \"status\": \"string\",\n        \"componentCategory\": \"string\",\n        \"aircraft\": {\n          \"registrationNumber\": {\n            \"number\": \"string\"\n          },\n          \"model\": {\n            \"modelName\": {\n              \"name\": \"string\"\n            },\n            \"manufacturer\": \"string\",\n            \"defaultSeatingCapacity\": 0,\n            \"fuelCapacity\": 0,\n            \"maximumRange\": 0,\n            \"cruisingSpeed\": 0,\n            \"fuelConsumptionPerHour\": 0,\n            \"modelPhotoUrl\": \"string\",\n            \"operatingHoursRange\": \"string\",\n            \"seatingConfiguration\": \"string\",\n            \"engineType\": \"string\"\n          },\n          \"status\": \"string\",\n          \"manufacturingDate\": \"string\",\n          \"actualSeatingCapacity\": 0,\n          \"totalFlightHours\": 0,\n          \"features\": \"string\",\n          \"aircraftModel\": {\n            \"modelName\": {\n              \"name\": \"string\"\n            },\n            \"manufacturer\": \"string\",\n            \"defaultSeatingCapacity\": 0,\n            \"fuelCapacity\": 0,\n            \"maximumRange\": 0,\n            \"cruisingSpeed\": 0,\n            \"fuelConsumptionPerHour\": 0,\n            \"modelPhotoUrl\": \"string\",\n            \"operatingHoursRange\": \"string\",\n            \"seatingConfiguration\": \"string\",\n            \"engineType\": \"string\"\n          }\n        },\n        \"template\": {\n          \"pk\": 0,\n          \"templateName\": \"string\",\n          \"templateType\": \"string\",\n          \"flightHoursInterval\": 0,\n          \"calendarDaysInterval\": 0,\n          \"checklist\": {\n            \"pk\": 0,\n            \"title\": \"string\",\n            \"version\": \"string\",\n            \"items\": [\n              {\n                \"taskDescription\": \"string\",\n                \"isMandatory\": true\n              }\n            ]\n          },\n          \"appliesTo\": [\n            {\n              \"modelName\": {\n                \"name\": \"string\"\n              },\n              \"manufacturer\": \"string\",\n              \"defaultSeatingCapacity\": 0,\n              \"fuelCapacity\": 0,\n              \"maximumRange\": 0,\n              \"cruisingSpeed\": 0,\n              \"fuelConsumptionPerHour\": 0,\n              \"modelPhotoUrl\": \"string\",\n              \"operatingHoursRange\": \"string\",\n              \"seatingConfiguration\": \"string\",\n              \"engineType\": \"string\"\n            }\n          ]\n        },\n        \"_links\": {}\n      }\n    ]\n  },\n  \"_links\": {},\n  \"page\": {\n    \"size\": 0,\n    \"totalElements\": 0,\n    \"totalPages\": 0,\n    \"number\": 0\n  }\n}"
+              }
+            }
+          }
+        },
+        "operationId": "searchRecords",
+        "tags": [
+          "Aircraft & Maintenance/maintenance-controller"
+        ],
+        "parameters": [
+          {
+            "name": "registrationNumber",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fromDate",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "toDate",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "componentCategory",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageable",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "assembler",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/maintenance/records/ongoing": {
+      "get": {
+        "summary": "getOngoingMaintenances",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_embedded\": {\n    \"maintenanceRecordList\": [\n      {\n        \"pk\": 0,\n        \"version\": 0,\n        \"description\": \"string\",\n        \"startDate\": \"string\",\n        \"expectedDuration\": 0,\n        \"completionNotes\": \"string\",\n        \"cost\": 0,\n        \"completionDate\": \"string\",\n        \"status\": \"string\",\n        \"componentCategory\": \"string\",\n        \"aircraft\": {\n          \"registrationNumber\": {\n            \"number\": \"string\"\n          },\n          \"model\": {\n            \"modelName\": {\n              \"name\": \"string\"\n            },\n            \"manufacturer\": \"string\",\n            \"defaultSeatingCapacity\": 0,\n            \"fuelCapacity\": 0,\n            \"maximumRange\": 0,\n            \"cruisingSpeed\": 0,\n            \"fuelConsumptionPerHour\": 0,\n            \"modelPhotoUrl\": \"string\",\n            \"operatingHoursRange\": \"string\",\n            \"seatingConfiguration\": \"string\",\n            \"engineType\": \"string\"\n          },\n          \"status\": \"string\",\n          \"manufacturingDate\": \"string\",\n          \"actualSeatingCapacity\": 0,\n          \"totalFlightHours\": 0,\n          \"features\": \"string\",\n          \"aircraftModel\": {\n            \"modelName\": {\n              \"name\": \"string\"\n            },\n            \"manufacturer\": \"string\",\n            \"defaultSeatingCapacity\": 0,\n            \"fuelCapacity\": 0,\n            \"maximumRange\": 0,\n            \"cruisingSpeed\": 0,\n            \"fuelConsumptionPerHour\": 0,\n            \"modelPhotoUrl\": \"string\",\n            \"operatingHoursRange\": \"string\",\n            \"seatingConfiguration\": \"string\",\n            \"engineType\": \"string\"\n          }\n        },\n        \"template\": {\n          \"pk\": 0,\n          \"templateName\": \"string\",\n          \"templateType\": \"string\",\n          \"flightHoursInterval\": 0,\n          \"calendarDaysInterval\": 0,\n          \"checklist\": {\n            \"pk\": 0,\n            \"title\": \"string\",\n            \"version\": \"string\",\n            \"items\": [\n              {\n                \"taskDescription\": \"string\",\n                \"isMandatory\": true\n              }\n            ]\n          },\n          \"appliesTo\": [\n            {\n              \"modelName\": {\n                \"name\": \"string\"\n              },\n              \"manufacturer\": \"string\",\n              \"defaultSeatingCapacity\": 0,\n              \"fuelCapacity\": 0,\n              \"maximumRange\": 0,\n              \"cruisingSpeed\": 0,\n              \"fuelConsumptionPerHour\": 0,\n              \"modelPhotoUrl\": \"string\",\n              \"operatingHoursRange\": \"string\",\n              \"seatingConfiguration\": \"string\",\n              \"engineType\": \"string\"\n            }\n          ]\n        },\n        \"_links\": {}\n      }\n    ]\n  },\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "getOngoingMaintenances",
+        "tags": [
+          "Aircraft & Maintenance/maintenance-controller"
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/maintenance/records/aircraft/{registrationNumber}": {
+      "get": {
+        "summary": "getAircraftHistory",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_embedded\": {\n    \"maintenanceRecordList\": [\n      {\n        \"pk\": 0,\n        \"version\": 0,\n        \"description\": \"string\",\n        \"startDate\": \"string\",\n        \"expectedDuration\": 0,\n        \"completionNotes\": \"string\",\n        \"cost\": 0,\n        \"completionDate\": \"string\",\n        \"status\": \"string\",\n        \"componentCategory\": \"string\",\n        \"aircraft\": {\n          \"registrationNumber\": {\n            \"number\": \"string\"\n          },\n          \"model\": {\n            \"modelName\": {\n              \"name\": \"string\"\n            },\n            \"manufacturer\": \"string\",\n            \"defaultSeatingCapacity\": 0,\n            \"fuelCapacity\": 0,\n            \"maximumRange\": 0,\n            \"cruisingSpeed\": 0,\n            \"fuelConsumptionPerHour\": 0,\n            \"modelPhotoUrl\": \"string\",\n            \"operatingHoursRange\": \"string\",\n            \"seatingConfiguration\": \"string\",\n            \"engineType\": \"string\"\n          },\n          \"status\": \"string\",\n          \"manufacturingDate\": \"string\",\n          \"actualSeatingCapacity\": 0,\n          \"totalFlightHours\": 0,\n          \"features\": \"string\",\n          \"aircraftModel\": {\n            \"modelName\": {\n              \"name\": \"string\"\n            },\n            \"manufacturer\": \"string\",\n            \"defaultSeatingCapacity\": 0,\n            \"fuelCapacity\": 0,\n            \"maximumRange\": 0,\n            \"cruisingSpeed\": 0,\n            \"fuelConsumptionPerHour\": 0,\n            \"modelPhotoUrl\": \"string\",\n            \"operatingHoursRange\": \"string\",\n            \"seatingConfiguration\": \"string\",\n            \"engineType\": \"string\"\n          }\n        },\n        \"template\": {\n          \"pk\": 0,\n          \"templateName\": \"string\",\n          \"templateType\": \"string\",\n          \"flightHoursInterval\": 0,\n          \"calendarDaysInterval\": 0,\n          \"checklist\": {\n            \"pk\": 0,\n            \"title\": \"string\",\n            \"version\": \"string\",\n            \"items\": [\n              {\n                \"taskDescription\": \"string\",\n                \"isMandatory\": true\n              }\n            ]\n          },\n          \"appliesTo\": [\n            {\n              \"modelName\": {\n                \"name\": \"string\"\n              },\n              \"manufacturer\": \"string\",\n              \"defaultSeatingCapacity\": 0,\n              \"fuelCapacity\": 0,\n              \"maximumRange\": 0,\n              \"cruisingSpeed\": 0,\n              \"fuelConsumptionPerHour\": 0,\n              \"modelPhotoUrl\": \"string\",\n              \"operatingHoursRange\": \"string\",\n              \"seatingConfiguration\": \"string\",\n              \"engineType\": \"string\"\n            }\n          ]\n        },\n        \"_links\": {}\n      }\n    ]\n  },\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "getAircraftHistory",
+        "tags": [
+          "Aircraft & Maintenance/maintenance-controller"
+        ],
+        "parameters": [
+          {
+            "name": "registrationNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/maintenance/records/aircraft/{registrationNumber}/total-hours": {
+      "get": {
+        "summary": "getTotalHoursByAircraft",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "getTotalHoursByAircraft",
+        "tags": [
+          "Aircraft & Maintenance/maintenance-controller"
+        ],
+        "parameters": [
+          {
+            "name": "registrationNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/maintenance/parts/low-stock-alerts": {
+      "get": {
+        "summary": "getLowStockAlerts",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_embedded\": {\n    \"lowStockAlertDTOList\": [\n      {\n        \"partNumber\": \"string\",\n        \"partName\": \"string\",\n        \"currentStock\": 0,\n        \"minimumThreshold\": 0,\n        \"alertMessage\": \"string\",\n        \"_links\": {}\n      }\n    ]\n  },\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "getLowStockAlerts",
+        "tags": [
+          "Aircraft & Maintenance/maintenance-controller"
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/maintenance/alerts": {
+      "get": {
+        "summary": "getMaintenanceAlerts",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_embedded\": {\n    \"maintenanceAlertDTOList\": [\n      {\n        \"registrationNumber\": \"string\",\n        \"alertType\": \"string\",\n        \"message\": \"string\",\n        \"_links\": {}\n      }\n    ]\n  },\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "getMaintenanceAlerts",
+        "tags": [
+          "Aircraft & Maintenance/maintenance-controller"
+        ],
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/aircraft-models": {
+      "post": {
+        "summary": "createModel",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"modelName\": \"string\",\n  \"manufacturer\": \"string\",\n  \"seatingCapacity\": 0,\n  \"fuelCapacity\": 0,\n  \"range\": 0,\n  \"speed\": 0,\n  \"fuelConsumption\": 0,\n  \"modelPhotoUrl\": \"string\",\n  \"seatingConfiguration\": \"string\",\n  \"operatingHoursRange\": \"string\",\n  \"engineType\": \"string\",\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "createModel",
+        "tags": [
+          "Aircraft & Maintenance/aircraft-controller"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "modelName": "string",
+                "manufacturer": "string",
+                "seatingCapacity": 0,
+                "fuelCapacity": 0,
+                "range": 0,
+                "speed": 0,
+                "fuelConsumption": 0,
+                "modelPhotoUrl": "string",
+                "seatingConfiguration": "string",
+                "operatingHoursRange": "string",
+                "engineType": "string"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/aircraft-models/instances": {
+      "get": {
+        "summary": "searchAircrafts",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_embedded\": {\n    \"aircraftViewDTOList\": [\n      {\n        \"registrationNumber\": \"string\",\n        \"modelName\": \"string\",\n        \"manufacturingDate\": \"string\",\n        \"seatingCapacity\": 0,\n        \"status\": \"string\",\n        \"modelPhotoUrl\": \"string\",\n        \"features\": \"string\",\n        \"engineType\": \"string\",\n        \"_links\": {}\n      }\n    ]\n  },\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "searchAircrafts",
+        "tags": [
+          "Aircraft & Maintenance/aircraft-controller"
+        ],
+        "parameters": [
+          {
+            "name": "model",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "createAircraft",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"registrationNumber\": \"string\",\n  \"modelName\": \"string\",\n  \"manufacturingDate\": \"string\",\n  \"seatingCapacity\": 0,\n  \"features\": \"string\",\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "createAircraft",
+        "tags": [
+          "Aircraft & Maintenance/aircraft-controller"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "registrationNumber": "string",
+                "modelName": "string",
+                "manufacturingDate": "string",
+                "seatingCapacity": 0,
+                "features": "string"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/aircraft-models/models/{modelName}/specifications": {
+      "patch": {
+        "summary": "updateModelSpecifications",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"modelName\": \"string\",\n  \"manufacturer\": \"string\",\n  \"defaultSeatingCapacity\": 0,\n  \"fuelCapacity\": 0,\n  \"maximumRange\": 0,\n  \"cruisingSpeed\": 0,\n  \"modelPhotoUrl\": \"string\",\n  \"seatingConfiguration\": \"string\",\n  \"operatingHoursRange\": \"string\",\n  \"engineType\": \"string\",\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "updateModelSpecifications",
+        "tags": [
+          "Aircraft & Maintenance/aircraft-controller"
+        ],
+        "parameters": [
+          {
+            "name": "modelName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "seatingCapacity": 0,
+                "fuelCapacity": 0,
+                "maximumRange": 0,
+                "cruisingSpeed": 0,
+                "seatingConfiguration": "string",
+                "operatingHoursRange": "string"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/aircraft-models/models/{modelName}/image": {
+      "patch": {
+        "summary": "updateModelImage",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"modelName\": \"string\",\n  \"manufacturer\": \"string\",\n  \"defaultSeatingCapacity\": 0,\n  \"fuelCapacity\": 0,\n  \"maximumRange\": 0,\n  \"cruisingSpeed\": 0,\n  \"modelPhotoUrl\": \"string\",\n  \"seatingConfiguration\": \"string\",\n  \"operatingHoursRange\": \"string\",\n  \"engineType\": \"string\",\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "updateModelImage",
+        "tags": [
+          "Aircraft & Maintenance/aircraft-controller"
+        ],
+        "parameters": [
+          {
+            "name": "modelName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "image": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/aircraft-models/instances/{registrationNumber}/status": {
+      "patch": {
+        "summary": "updateStatus",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "updateStatus",
+        "tags": [
+          "Aircraft & Maintenance/aircraft-controller"
+        ],
+        "parameters": [
+          {
+            "name": "registrationNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "status": "string"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/aircraft-models/models/top5": {
+      "get": {
+        "summary": "Get Top 5 Aircraft Models",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_embedded\": {\n    \"topAircraftModelDTOList\": [\n      {\n        \"modelName\": \"string\",\n        \"totalFlightHours\": 0,\n        \"totalAssignments\": 0,\n        \"_links\": {}\n      }\n    ]\n  },\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "description": "Get the top 5 most utilized aircraft models based on total flight hours or number of assignments.",
+        "operationId": "Get_Top_5_Aircraft_Models",
+        "tags": [
+          "Aircraft & Maintenance/aircraft-controller"
+        ],
+        "parameters": [
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "example": "hours"
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/aircraft-models/instances/{registrationNumber}": {
+      "get": {
+        "summary": "getAircraft",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"registrationNumber\": \"string\",\n  \"modelName\": \"string\",\n  \"manufacturingDate\": \"string\",\n  \"seatingCapacity\": 0,\n  \"status\": \"string\",\n  \"modelPhotoUrl\": \"string\",\n  \"features\": \"string\",\n  \"engineType\": \"string\",\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "getAircraft",
+        "tags": [
+          "Aircraft & Maintenance/aircraft-controller"
+        ],
+        "parameters": [
+          {
+            "name": "CS-TVB",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "CS-TVB"
+          },
+          {
+            "name": "registrationNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/aircraft-models/instances/{registrationNumber}/real-time-status": {
+      "get": {
+        "summary": "getRealTimeStatus",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"registrationNumber\": \"string\",\n  \"realTimeStatus\": \"string\",\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "getRealTimeStatus",
+        "tags": [
+          "Aircraft & Maintenance/aircraft-controller"
+        ],
+        "parameters": [
+          {
+            "name": "registrationNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/aircraft-models/instances/{registrationNumber}/operational-hours": {
+      "get": {
+        "summary": "getOperationalHours",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"registrationNumber\": \"string\",\n  \"totalOperationalHours\": 0,\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "getOperationalHours",
+        "tags": [
+          "Aircraft & Maintenance/aircraft-controller"
+        ],
+        "parameters": [
+          {
+            "name": "registrationNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/aircraft-models/instances/{registrationNumber}/compatible-routes": {
+      "get": {
+        "summary": "getCompatibleRoutes",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_embedded\": {\n    \"routeViewDTOList\": [\n      {\n        \"routeId\": \"string\",\n        \"originIata\": \"string\",\n        \"destinationIata\": \"string\",\n        \"status\": \"string\",\n        \"minimumCapacity\": 0,\n        \"_links\": {}\n      }\n    ]\n  },\n  \"_links\": {},\n  \"page\": {\n    \"size\": 0,\n    \"totalElements\": 0,\n    \"totalPages\": 0,\n    \"number\": 0\n  }\n}"
+              }
+            }
+          }
+        },
+        "operationId": "getCompatibleRoutes",
+        "tags": [
+          "Aircraft & Maintenance/aircraft-controller"
+        ],
+        "parameters": [
+          {
+            "name": "pageable",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "assembler",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "registrationNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/aircraft-models/instances/top5": {
+      "get": {
+        "summary": "Get Top 5 Aircraft Instances",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_embedded\": {\n    \"topAircraftModelDTOList\": [\n      {\n        \"modelName\": \"string\",\n        \"totalFlightHours\": 0,\n        \"totalAssignments\": 0,\n        \"_links\": {}\n      }\n    ]\n  },\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "description": "Get the top 5 most utilized aircraft instances based on assignments or hours.",
+        "operationId": "Get_Top_5_Aircraft_Instances",
+        "tags": [
+          "Aircraft & Maintenance/aircraft-controller"
+        ],
+        "parameters": [
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "example": "assignments"
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/aircraft-models/instances/search-features": {
+      "get": {
+        "summary": "searchAircraftByFeatures",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_embedded\": {\n    \"aircraftViewDTOList\": [\n      {\n        \"registrationNumber\": \"string\",\n        \"modelName\": \"string\",\n        \"manufacturingDate\": \"string\",\n        \"seatingCapacity\": 0,\n        \"status\": \"string\",\n        \"modelPhotoUrl\": \"string\",\n        \"features\": \"string\",\n        \"engineType\": \"string\",\n        \"_links\": {}\n      }\n    ]\n  },\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "searchAircraftByFeatures",
+        "tags": [
+          "Aircraft & Maintenance/aircraft-controller"
+        ],
+        "parameters": [
+          {
+            "name": "feature",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "engineType",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/aircraft-models/instances/operational-hours": {
+      "get": {
+        "summary": "getAllOperationalHours",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_embedded\": {\n    \"operationalHoursDTOList\": [\n      {\n        \"registrationNumber\": \"string\",\n        \"totalOperationalHours\": 0,\n        \"_links\": {}\n      }\n    ]\n  },\n  \"_links\": {},\n  \"page\": {\n    \"size\": 0,\n    \"totalElements\": 0,\n    \"totalPages\": 0,\n    \"number\": 0\n  }\n}"
+              }
+            }
+          }
+        },
+        "operationId": "getAllOperationalHours",
+        "tags": [
+          "Aircraft & Maintenance/aircraft-controller"
+        ],
+        "parameters": [
+          {
+            "name": "pageable",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "assembler",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/aircraft-models/fuel-efficiency": {
+      "get": {
+        "summary": "getFuelEfficiency",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{}"
+              }
+            }
+          }
+        },
+        "operationId": "getFuelEfficiency",
+        "tags": [
+          "Aircraft & Maintenance/aircraft-controller"
+        ],
+        "parameters": [
+          {
+            "name": "regNum",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/routes": {
+      "get": {
+        "summary": "Search routes by origin, destination, or both (Paged)",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_embedded\": {\n    \"routeViewDTOList\": [\n      {\n        \"routeId\": \"string\",\n        \"originIata\": \"string\",\n        \"destinationIata\": \"string\",\n        \"status\": \"string\",\n        \"minimumCapacity\": 0,\n        \"minimumRange\": 0,\n        \"originAirportStatus\": \"string\",\n        \"destinationAirportStatus\": \"string\",\n        \"_links\": {}\n      }\n    ]\n  },\n  \"_links\": {},\n  \"page\": {\n    \"size\": 0,\n    \"totalElements\": 0,\n    \"totalPages\": 0,\n    \"number\": 0\n  }\n}"
+              }
+            }
+          }
+        },
+        "operationId": "Search_routes_by_origin_destination_or_both_Paged",
+        "tags": [
+          "Airports & Routes/route-controller"
+        ],
+        "parameters": [
+          {
+            "name": "origin",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "destination",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageable",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "assembler",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Creates a new flight route",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"routeId\": \"string\",\n  \"originIata\": \"string\",\n  \"destinationIata\": \"string\",\n  \"status\": \"string\",\n  \"minimumCapacity\": 0,\n  \"minimumRange\": 0,\n  \"originAirportStatus\": \"string\",\n  \"destinationAirportStatus\": \"string\",\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "Creates_a_new_flight_route",
+        "tags": [
+          "Airports & Routes/route-controller"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "routeId": "string",
+                "originIata": "string",
+                "destinationIata": "string",
+                "estimatedFlightTime": 0,
+                "minimumRange": 0,
+                "minimumCapacity": 0
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/routes/{id}": {
+      "get": {
+        "summary": "Get route details by ID",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"routeId\": \"string\",\n  \"originIata\": \"string\",\n  \"destinationIata\": \"string\",\n  \"status\": \"string\",\n  \"minimumCapacity\": 0,\n  \"minimumRange\": 0,\n  \"originAirportStatus\": \"string\",\n  \"destinationAirportStatus\": \"string\",\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "Get_route_details_by_ID",
+        "tags": [
+          "Airports & Routes/route-controller"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "summary": "Updates technical parameters of an existing route",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"routeId\": \"string\",\n  \"originIata\": \"string\",\n  \"destinationIata\": \"string\",\n  \"status\": \"string\",\n  \"minimumCapacity\": 0,\n  \"minimumRange\": 0,\n  \"originAirportStatus\": \"string\",\n  \"destinationAirportStatus\": \"string\",\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "Updates_technical_parameters_of_an_existing_route",
+        "tags": [
+          "Airports & Routes/route-controller"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "estimatedFlightTime": 0,
+                "minimumRange": 0,
+                "minimumCapacity": 0
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/routes/{id}/deactivate": {
+      "patch": {
+        "summary": "Deactivates a route",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"routeId\": \"string\",\n  \"originIata\": \"string\",\n  \"destinationIata\": \"string\",\n  \"status\": \"string\",\n  \"minimumCapacity\": 0,\n  \"minimumRange\": 0,\n  \"originAirportStatus\": \"string\",\n  \"destinationAirportStatus\": \"string\",\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "Deactivates_a_route",
+        "tags": [
+          "Airports & Routes/route-controller"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/routes/{id}/history": {
+      "get": {
+        "summary": "getRouteHistory",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_embedded\": {\n    \"routeHistoryDTOList\": [\n      {\n        \"routeId\": \"string\",\n        \"action\": \"string\",\n        \"startDate\": \"string\",\n        \"endDate\": \"string\",\n        \"_links\": {}\n      }\n    ]\n  },\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "getRouteHistory",
+        "tags": [
+          "Airports & Routes/route-controller"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/routes/statistics/total-distance": {
+      "get": {
+        "summary": "getTotalDistance",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "getTotalDistance",
+        "tags": [
+          "Airports & Routes/route-controller"
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/routes/statistics/busiest-airports": {
+      "get": {
+        "summary": "getBusiestAirports",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_embedded\": {\n    \"busiestAirportDTOList\": [\n      {\n        \"iataCode\": \"string\",\n        \"name\": \"string\",\n        \"routeCount\": 0,\n        \"_links\": {}\n      }\n    ]\n  },\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "getBusiestAirports",
+        "tags": [
+          "Airports & Routes/route-controller"
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/routes/involving/{iataCode}": {
+      "get": {
+        "summary": "View all routes that depart from or arrive at a specific airport (Paged)",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_embedded\": {\n    \"routeViewDTOList\": [\n      {\n        \"routeId\": \"string\",\n        \"originIata\": \"string\",\n        \"destinationIata\": \"string\",\n        \"status\": \"string\",\n        \"minimumCapacity\": 0,\n        \"minimumRange\": 0,\n        \"originAirportStatus\": \"string\",\n        \"destinationAirportStatus\": \"string\",\n        \"_links\": {}\n      }\n    ]\n  },\n  \"_links\": {},\n  \"page\": {\n    \"size\": 0,\n    \"totalElements\": 0,\n    \"totalPages\": 0,\n    \"number\": 0\n  }\n}"
+              }
+            }
+          }
+        },
+        "operationId": "View_all_routes_that_depart_from_or_arrive_at_a_specific_airport_Paged",
+        "tags": [
+          "Airports & Routes/route-controller"
+        ],
+        "parameters": [
+          {
+            "name": "pageable",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "assembler",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "iataCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/routes/export/geojson": {
+      "get": {
+        "summary": "Export all routes as a GeoJSON file",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/geo+json": {
+                "example": "string"
+              }
+            }
+          }
+        },
+        "operationId": "Export_all_routes_as_a_GeoJSON_file",
+        "tags": [
+          "Airports & Routes/route-controller"
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/routes/alternatives": {
+      "get": {
+        "summary": "Search for alternative routes between two airports",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_embedded\": {\n    \"alternativeRouteDTOList\": [\n      {\n        \"legs\": [\n          {\n            \"routeId\": \"string\",\n            \"originIata\": \"string\",\n            \"destinationIata\": \"string\",\n            \"status\": \"string\",\n            \"minimumCapacity\": 0,\n            \"minimumRange\": 0,\n            \"originAirportStatus\": \"string\",\n            \"destinationAirportStatus\": \"string\"\n          }\n        ],\n        \"totalEstimatedFlightTime\": 0,\n        \"totalDistance\": 0,\n        \"_links\": {}\n      }\n    ]\n  },\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "Search_for_alternative_routes_between_two_airports",
+        "tags": [
+          "Airports & Routes/route-controller"
+        ],
+        "parameters": [
+          {
+            "name": "originIata",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "destinationIata",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/routes/airport/{iata}": {
+      "get": {
+        "summary": "Search routes by origin airport (Paged)",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_embedded\": {\n    \"routeViewDTOList\": [\n      {\n        \"routeId\": \"string\",\n        \"originIata\": \"string\",\n        \"destinationIata\": \"string\",\n        \"status\": \"string\",\n        \"minimumCapacity\": 0,\n        \"minimumRange\": 0,\n        \"originAirportStatus\": \"string\",\n        \"destinationAirportStatus\": \"string\",\n        \"_links\": {}\n      }\n    ]\n  },\n  \"_links\": {},\n  \"page\": {\n    \"size\": 0,\n    \"totalElements\": 0,\n    \"totalPages\": 0,\n    \"number\": 0\n  }\n}"
+              }
+            }
+          }
+        },
+        "operationId": "Search_routes_by_origin_airport_Paged",
+        "tags": [
+          "Airports & Routes/route-controller"
+        ],
+        "parameters": [
+          {
+            "name": "pageable",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "assembler",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "iata",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/routes/active/sorted": {
+      "get": {
+        "summary": "List all active routes sorted by popularity or distance",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_embedded\": {\n    \"routeViewDTOList\": [\n      {\n        \"routeId\": \"string\",\n        \"originIata\": \"string\",\n        \"destinationIata\": \"string\",\n        \"status\": \"string\",\n        \"minimumCapacity\": 0,\n        \"minimumRange\": 0,\n        \"originAirportStatus\": \"string\",\n        \"destinationAirportStatus\": \"string\",\n        \"_links\": {}\n      }\n    ]\n  },\n  \"_links\": {},\n  \"page\": {\n    \"size\": 0,\n    \"totalElements\": 0,\n    \"totalPages\": 0,\n    \"number\": 0\n  }\n}"
+              }
+            }
+          }
+        },
+        "operationId": "List_all_active_routes_sorted_by_popularity_or_distance",
+        "tags": [
+          "Airports & Routes/route-controller"
+        ],
+        "parameters": [
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "example": "distance"
+          },
+          {
+            "name": "pageable",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "assembler",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/airports": {
+      "post": {
+        "summary": "createAirport",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"iataCode\": \"string\",\n  \"name\": \"string\",\n  \"city\": \"string\",\n  \"country\": \"string\",\n  \"timezone\": \"string\",\n  \"type\": \"string\",\n  \"status\": \"string\",\n  \"runways\": [\n    {\n      \"name\": \"string\",\n      \"length\": 0,\n      \"orientation\": \"string\"\n    }\n  ],\n  \"certifications\": [\n    {\n      \"certificationNumber\": \"string\",\n      \"modelName\": \"string\",\n      \"expiryDate\": \"string\"\n    }\n  ],\n  \"facilities\": [\n    {\n      \"type\": \"string\",\n      \"description\": \"string\"\n    }\n  ],\n  \"imageUrl\": \"string\",\n  \"operationalHours\": \"string\",\n  \"contactInformation\": \"string\",\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "createAirport",
+        "tags": [
+          "Airports & Routes/airport-controller"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "iataCode": "string",
+                "name": "string",
+                "city": "string",
+                "country": "string",
+                "timezone": "string",
+                "type": "string",
+                "latitude": 0,
+                "longitude": 0,
+                "runways": [
+                  {
+                    "name": "string",
+                    "length": 0,
+                    "orientation": "string"
+                  }
+                ],
+                "facilities": [
+                  {
+                    "type": "string",
+                    "description": "string"
+                  }
+                ],
+                "imageUrl": "string"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/airports/{iataCode}/certifications": {
+      "post": {
+        "summary": "addCertification",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"iataCode\": \"string\",\n  \"name\": \"string\",\n  \"city\": \"string\",\n  \"country\": \"string\",\n  \"timezone\": \"string\",\n  \"type\": \"string\",\n  \"status\": \"string\",\n  \"runways\": [\n    {\n      \"name\": \"string\",\n      \"length\": 0,\n      \"orientation\": \"string\"\n    }\n  ],\n  \"certifications\": [\n    {\n      \"certificationNumber\": \"string\",\n      \"modelName\": \"string\",\n      \"expiryDate\": \"string\"\n    }\n  ],\n  \"facilities\": [\n    {\n      \"type\": \"string\",\n      \"description\": \"string\"\n    }\n  ],\n  \"imageUrl\": \"string\",\n  \"operationalHours\": \"string\",\n  \"contactInformation\": \"string\",\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "addCertification",
+        "tags": [
+          "Airports & Routes/airport-controller"
+        ],
+        "parameters": [
+          {
+            "name": "iataCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "certificationNumber": "string",
+                "modelName": "string",
+                "issueDate": "string",
+                "expiryDate": "string"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/airports/import": {
+      "post": {
+        "summary": "importAirportsFromCsv",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_embedded\": {\n    \"airportViewDTOList\": [\n      {\n        \"iataCode\": \"string\",\n        \"name\": \"string\",\n        \"city\": \"string\",\n        \"country\": \"string\",\n        \"timezone\": \"string\",\n        \"type\": \"string\",\n        \"status\": \"string\",\n        \"runways\": [\n          {\n            \"name\": \"string\",\n            \"length\": 0,\n            \"orientation\": \"string\"\n          }\n        ],\n        \"certifications\": [\n          {\n            \"certificationNumber\": \"string\",\n            \"modelName\": \"string\",\n            \"expiryDate\": \"string\"\n          }\n        ],\n        \"facilities\": [\n          {\n            \"type\": \"string\",\n            \"description\": \"string\"\n          }\n        ],\n        \"imageUrl\": \"string\",\n        \"operationalHours\": \"string\",\n        \"contactInformation\": \"string\",\n        \"_links\": {}\n      }\n    ]\n  },\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "importAirportsFromCsv",
+        "tags": [
+          "Airports & Routes/airport-controller"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/airports/{iataCode}/status": {
+      "patch": {
+        "summary": "updateStatus",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"iataCode\": \"string\",\n  \"name\": \"string\",\n  \"city\": \"string\",\n  \"country\": \"string\",\n  \"timezone\": \"string\",\n  \"type\": \"string\",\n  \"status\": \"string\",\n  \"runways\": [\n    {\n      \"name\": \"string\",\n      \"length\": 0,\n      \"orientation\": \"string\"\n    }\n  ],\n  \"certifications\": [\n    {\n      \"certificationNumber\": \"string\",\n      \"modelName\": \"string\",\n      \"expiryDate\": \"string\"\n    }\n  ],\n  \"facilities\": [\n    {\n      \"type\": \"string\",\n      \"description\": \"string\"\n    }\n  ],\n  \"imageUrl\": \"string\",\n  \"operationalHours\": \"string\",\n  \"contactInformation\": \"string\",\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "updateStatus_2",
+        "tags": [
+          "Airports & Routes/airport-controller"
+        ],
+        "parameters": [
+          {
+            "name": "iataCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": "string"
+            }
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/airports/{iataCode}/image": {
+      "patch": {
+        "summary": "updateAirportImage",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"iataCode\": \"string\",\n  \"name\": \"string\",\n  \"city\": \"string\",\n  \"country\": \"string\",\n  \"timezone\": \"string\",\n  \"type\": \"string\",\n  \"status\": \"string\",\n  \"runways\": [\n    {\n      \"name\": \"string\",\n      \"length\": 0,\n      \"orientation\": \"string\"\n    }\n  ],\n  \"certifications\": [\n    {\n      \"certificationNumber\": \"string\",\n      \"modelName\": \"string\",\n      \"expiryDate\": \"string\"\n    }\n  ],\n  \"facilities\": [\n    {\n      \"type\": \"string\",\n      \"description\": \"string\"\n    }\n  ],\n  \"imageUrl\": \"string\",\n  \"operationalHours\": \"string\",\n  \"contactInformation\": \"string\",\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "updateAirportImage",
+        "tags": [
+          "Airports & Routes/airport-controller"
+        ],
+        "parameters": [
+          {
+            "name": "iataCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/airports/{iataCode}/details": {
+      "patch": {
+        "summary": "updateAirportDetails",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"iataCode\": \"string\",\n  \"name\": \"string\",\n  \"city\": \"string\",\n  \"country\": \"string\",\n  \"timezone\": \"string\",\n  \"type\": \"string\",\n  \"status\": \"string\",\n  \"runways\": [\n    {\n      \"name\": \"string\",\n      \"length\": 0,\n      \"orientation\": \"string\"\n    }\n  ],\n  \"certifications\": [\n    {\n      \"certificationNumber\": \"string\",\n      \"modelName\": \"string\",\n      \"expiryDate\": \"string\"\n    }\n  ],\n  \"facilities\": [\n    {\n      \"type\": \"string\",\n      \"description\": \"string\"\n    }\n  ],\n  \"imageUrl\": \"string\",\n  \"operationalHours\": \"string\",\n  \"contactInformation\": \"string\",\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "updateAirportDetails",
+        "tags": [
+          "Airports & Routes/airport-controller"
+        ],
+        "parameters": [
+          {
+            "name": "iataCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "operationalHours": "string",
+                "contactInformation": "string"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/airports/{iataCode}": {
+      "get": {
+        "summary": "getAirport",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"iataCode\": \"string\",\n  \"name\": \"string\",\n  \"city\": \"string\",\n  \"country\": \"string\",\n  \"timezone\": \"string\",\n  \"type\": \"string\",\n  \"status\": \"string\",\n  \"runways\": [\n    {\n      \"name\": \"string\",\n      \"length\": 0,\n      \"orientation\": \"string\"\n    }\n  ],\n  \"certifications\": [\n    {\n      \"certificationNumber\": \"string\",\n      \"modelName\": \"string\",\n      \"expiryDate\": \"string\"\n    }\n  ],\n  \"facilities\": [\n    {\n      \"type\": \"string\",\n      \"description\": \"string\"\n    }\n  ],\n  \"imageUrl\": \"string\",\n  \"operationalHours\": \"string\",\n  \"contactInformation\": \"string\",\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "getAirport",
+        "tags": [
+          "Airports & Routes/airport-controller"
+        ],
+        "parameters": [
+          {
+            "name": "iataCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/airports/search": {
+      "get": {
+        "summary": "searchAirports",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_embedded\": {\n    \"airportViewDTOList\": [\n      {\n        \"iataCode\": \"string\",\n        \"name\": \"string\",\n        \"city\": \"string\",\n        \"country\": \"string\",\n        \"timezone\": \"string\",\n        \"type\": \"string\",\n        \"status\": \"string\",\n        \"runways\": [\n          {\n            \"name\": \"string\",\n            \"length\": 0,\n            \"orientation\": \"string\"\n          }\n        ],\n        \"certifications\": [\n          {\n            \"certificationNumber\": \"string\",\n            \"modelName\": \"string\",\n            \"expiryDate\": \"string\"\n          }\n        ],\n        \"facilities\": [\n          {\n            \"type\": \"string\",\n            \"description\": \"string\"\n          }\n        ],\n        \"imageUrl\": \"string\",\n        \"operationalHours\": \"string\",\n        \"contactInformation\": \"string\",\n        \"_links\": {}\n      }\n    ]\n  },\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "searchAirports",
+        "tags": [
+          "Airports & Routes/airport-controller"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "city",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/airports/grouped": {
+      "get": {
+        "summary": "getAirportsGrouped",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{}"
+              }
+            }
+          }
+        },
+        "operationId": "getAirportsGrouped",
+        "tags": [
+          "Airports & Routes/airport-controller"
+        ],
+        "parameters": [
+          {
+            "name": "by",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "example": "country"
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/scheduled-flights": {
+      "post": {
+        "summary": "scheduleFlight",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"id\": 0,\n  \"routeId\": \"string\",\n  \"registrationNumber\": \"string\",\n  \"scheduledDateTime\": \"string\",\n  \"status\": \"string\",\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "scheduleFlight",
+        "tags": [
+          "FlightOperations/scheduled-flight-controller"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "routeId": "RT-LISCDG",
+                "registrationNumber": "CS-TPA",
+                "scheduledDateTime": "2026-11-10T10:00:00"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/scheduled-flights/route-utilization": {
+      "get": {
+        "summary": "getRouteUtilizationReport",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{}"
+              }
+            }
+          }
+        },
+        "operationId": "getRouteUtilizationReport",
+        "tags": [
+          "FlightOperations/scheduled-flight-controller"
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/scheduled-flights/local/aircraft/{registrationNumber}": {
+      "get": {
+        "summary": "getLocalFlightsByAircraft",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "[\n  {\n    \"id\": 0,\n    \"routeId\": \"string\",\n    \"registrationNumber\": \"string\",\n    \"scheduledDateTime\": \"string\",\n    \"status\": \"string\"\n  }\n]"
+              }
+            }
+          }
+        },
+        "operationId": "getLocalFlightsByAircraft",
+        "tags": [
+          "FlightOperations/scheduled-flight-controller"
+        ],
+        "parameters": [
+          {
+            "name": "registrationNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/api/scheduled-flights/aircraft/{registrationNumber}": {
+      "get": {
+        "summary": "getFlightsByAircraft",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "example": "{\n  \"_embedded\": {\n    \"scheduledFlightViewDTOList\": [\n      {\n        \"id\": 0,\n        \"routeId\": \"string\",\n        \"registrationNumber\": \"string\",\n        \"scheduledDateTime\": \"string\",\n        \"status\": \"string\",\n        \"_links\": {}\n      }\n    ]\n  },\n  \"_links\": {}\n}"
+              }
+            }
+          }
+        },
+        "operationId": "getFlightsByAircraft",
+        "tags": [
+          "FlightOperations/scheduled-flight-controller"
+        ],
+        "parameters": [
+          {
+            "name": "registrationNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "CS-TPA"
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8081"
+    },
+    {
+      "url": "http://localhost:8083"
+    },
+    {
+      "url": "http://localhost:8080"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Aircraft & Maintenance"
+    },
+    {
+      "name": "Aircraft & Maintenance/maintenance-controller"
+    },
+    {
+      "name": "Aircraft & Maintenance/aircraft-controller"
+    },
+    {
+      "name": "Airports & Routes"
+    },
+    {
+      "name": "Airports & Routes/route-controller"
+    },
+    {
+      "name": "Airports & Routes/airport-controller"
+    },
+    {
+      "name": "FlightOperations"
+    },
+    {
+      "name": "FlightOperations/scheduled-flight-controller"
+    }
+  ],
+  "x-hoppscotch-folder-tags": "slash",
+  "components": {
+    "securitySchemes": {
+      "basicAuth": {
+        "type": "http",
+        "scheme": "basic"
+      }
+    }
+  },
+  "x-hoppscotch-workspace-root": true
+}
