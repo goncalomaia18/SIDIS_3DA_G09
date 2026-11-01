@@ -231,4 +231,14 @@ public class AircraftController {
 
         return ResponseEntity.ok(metrics);
     }
+
+    @GetMapping("/instances/local/{registrationNumber}")
+    public ResponseEntity<AircraftViewDTO> getLocalAircraft(
+            @PathVariable String registrationNumber) {
+
+        return ResponseEntity.ok(
+                service.getLocalAircraft(registrationNumber)
+        );
+    }
+
 }

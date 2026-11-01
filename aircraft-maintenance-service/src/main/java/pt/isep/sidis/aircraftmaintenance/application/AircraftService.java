@@ -11,6 +11,7 @@ import pt.isep.sidis.aircraftmaintenance.application.dto.*;
 import pt.isep.sidis.aircraftmaintenance.domain.*;
 import pt.isep.sidis.aircraftmaintenance.repositories.AircraftModelRepository;
 import pt.isep.sidis.aircraftmaintenance.repositories.AircraftRepository;
+import pt.isep.sidis.aircraftmaintenance.client.AircraftPeerClient;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,11 +29,16 @@ public class AircraftService {
 
     private final AircraftModelRepository modelRepository;
     private final AircraftRepository aircraftRepository;
+    private final AircraftPeerClient aircraftPeerClient;
 
-    public AircraftService(AircraftModelRepository modelRepository,
-                           AircraftRepository aircraftRepository) {
+    public AircraftService(
+            AircraftModelRepository modelRepository,
+            AircraftRepository aircraftRepository,
+            AircraftPeerClient aircraftPeerClient) {
+
         this.modelRepository = modelRepository;
         this.aircraftRepository = aircraftRepository;
+        this.aircraftPeerClient = aircraftPeerClient;
     }
 
     private String saveImageLocally(MultipartFile file) {
@@ -103,15 +109,33 @@ public class AircraftService {
         aircraftRepository.save(aircraft);
     }
 
-    public AircraftViewDTO getAircraftByRegistrationNumber(String regNum) {
+
+    public AircraftViewDTO getLocalAircraft(String regNum) {
+
         Aircraft aircraft = aircraftRepository
-                .findByRegistrationNumber(new RegistrationNumber(regNum))
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Aircraft not found: " + regNum
+                .findByRegistrationNumber(
+                        new RegistrationNumber(regNum)
+                )
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Aircraft not found locally: " + regNum
                 ));
 
         return mapToViewDTO(aircraft);
     }
+
+    public AircraftViewDTO getAircraftByRegistrationNumber(String regNum) {
+
+        return aircraftRepository
+                .findByRegistrationNumber(
+                        new RegistrationNumber(regNum)
+                )
+                .map(this::mapToViewDTO)
+                .orElseGet(() ->
+                        aircraftPeerClient.findAircraftOnPeers(regNum)
+                );
+    }
+
 
     public List<AircraftViewDTO> searchAircrafts(
             String model,
