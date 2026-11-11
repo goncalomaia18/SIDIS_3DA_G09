@@ -6,12 +6,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.transaction.event.TransactionalEventListener;
+import org.springframework.transaction.event.TransactionPhase;
+
 
 import pt.isep.sidis.aircraftmaintenance.application.dto.*;
 import pt.isep.sidis.aircraftmaintenance.domain.*;
 import pt.isep.sidis.aircraftmaintenance.repositories.AircraftModelRepository;
 import pt.isep.sidis.aircraftmaintenance.repositories.AircraftRepository;
 import pt.isep.sidis.aircraftmaintenance.client.AircraftPeerClient;
+import pt.isep.sidis.aircraftmaintenance.events.AircraftRegisteredEvent;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,6 +28,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
+import java.time.Instant;
+import java.util.UUID;
 
 @Service
 public class AircraftService {
@@ -30,16 +37,21 @@ public class AircraftService {
     private final AircraftModelRepository modelRepository;
     private final AircraftRepository aircraftRepository;
     private final AircraftPeerClient aircraftPeerClient;
+    private final ApplicationEventPublisher applicationEventPublisher;
+
 
     public AircraftService(
             AircraftModelRepository modelRepository,
             AircraftRepository aircraftRepository,
-            AircraftPeerClient aircraftPeerClient) {
+            AircraftPeerClient aircraftPeerClient,
+            ApplicationEventPublisher applicationEventPublisher) {
 
         this.modelRepository = modelRepository;
         this.aircraftRepository = aircraftRepository;
         this.aircraftPeerClient = aircraftPeerClient;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
+
 
     private String saveImageLocally(MultipartFile file) {
         if (file == null || file.isEmpty()) {
@@ -90,8 +102,10 @@ public class AircraftService {
         modelRepository.save(model);
     }
 
+
     @Transactional
     public void registerAircraft(RegisterAircraftDTO dto) {
+
         AircraftModel model = modelRepository
                 .findByModelName(new ModelName(dto.modelName()))
                 .orElseThrow(() -> new IllegalArgumentException(
@@ -107,7 +121,18 @@ public class AircraftService {
         );
 
         aircraftRepository.save(aircraft);
+
+        AircraftRegisteredEvent event = new AircraftRegisteredEvent(
+                UUID.randomUUID(),
+                aircraft.getRegistrationNumber().number(),
+                model.getModelName().name(),
+                aircraft.getStatus().name(),
+                Instant.now()
+        );
+
+        applicationEventPublisher.publishEvent(event);
     }
+
 
 
     public AircraftViewDTO getLocalAircraft(String regNum) {

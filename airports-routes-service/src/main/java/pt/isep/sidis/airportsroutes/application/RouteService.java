@@ -14,6 +14,11 @@ import pt.isep.sidis.airportsroutes.repositories.RouteRepository;
 import pt.isep.sidis.airportsroutes.client.RoutePeerClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.transaction.annotation.Transactional;
+import pt.isep.sidis.airportsroutes.events.RouteCreatedEvent;
+import java.time.Instant;
+import java.util.UUID;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,6 +34,9 @@ public class RouteService {
     private final RouteHistoryRepository routeHistoryRepository;
     private final RouteSearchStrategy routeSearchStrategy; // <-- A Estratégia adicionada aqui
     private final RoutePeerClient routePeerClient;
+    private final ApplicationEventPublisher applicationEventPublisher;
+
+
 
 
     public RouteService(
@@ -36,31 +44,69 @@ public class RouteService {
             AirportRepository airportRepository,
             RouteHistoryRepository routeHistoryRepository,
             RouteSearchStrategy routeSearchStrategy,
-            RoutePeerClient routePeerClient) {
+            RoutePeerClient routePeerClient,
+            ApplicationEventPublisher applicationEventPublisher) {
 
         this.routeRepository = routeRepository;
         this.airportRepository = airportRepository;
         this.routeHistoryRepository = routeHistoryRepository;
         this.routeSearchStrategy = routeSearchStrategy;
         this.routePeerClient = routePeerClient;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
-    // --- US110: Criar uma Rota ---
-    public RouteViewDTO createRoute(CreateRouteDTO dto) {
-        Airport origin = airportRepository.findByIataCodeString(dto.originIata())
-                .orElseThrow(() -> new IllegalArgumentException("Origin Airport not found: " + dto.originIata()));
 
-        Airport destination = airportRepository.findByIataCodeString(dto.destinationIata())
-                .orElseThrow(() -> new IllegalArgumentException("Destination Airport not found: " + dto.destinationIata()));
+
+    @Transactional
+    public RouteViewDTO createRoute(CreateRouteDTO dto) {
+
+        Airport origin = airportRepository
+                .findByIataCodeString(dto.originIata())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Origin Airport not found: " + dto.originIata()
+                ));
+
+        Airport destination = airportRepository
+                .findByIataCodeString(dto.destinationIata())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Destination Airport not found: "
+                                + dto.destinationIata()
+                ));
 
         RouteId routeId = new RouteId(dto.routeId());
-        Route newRoute = new Route(routeId, origin, destination, dto.estimatedFlightTime(), dto.minimumRange(), dto.minimumCapacity());
+
+        Route newRoute = new Route(
+                routeId,
+                origin,
+                destination,
+                dto.estimatedFlightTime(),
+                dto.minimumRange(),
+                dto.minimumCapacity()
+        );
 
         Route savedRoute = routeRepository.save(newRoute);
-        routeHistoryRepository.save(new RouteHistory(savedRoute.getRouteId().id(), "CREATED"));
+
+        routeHistoryRepository.save(
+                new RouteHistory(
+                        savedRoute.getRouteId().id(),
+                        "CREATED"
+                )
+        );
+
+        RouteCreatedEvent event = new RouteCreatedEvent(
+                UUID.randomUUID(),
+                savedRoute.getRouteId().id(),
+                origin.getIataCode().code(),
+                destination.getIataCode().code(),
+                savedRoute.getStatus().name(),
+                Instant.now()
+        );
+
+        applicationEventPublisher.publishEvent(event);
 
         return convertToDTO(savedRoute);
     }
+
 
     // --- US112: Desativar uma rota ---
     public RouteViewDTO deactivateRoute(String id) {
