@@ -3,6 +3,13 @@ package pt.isep.sidis.airportsroutes.application.dto;
 import jakarta.validation.constraints.Min;
 
 public record UpdateRouteDTO(
+        String originIata,
+
+        String destinationIata,
+
+        @Min(value = 1, message = "Distance must be positive")
+        Double distanceKm,
+
         @Min(value = 1, message = "Flight time must be positive")
         Integer estimatedFlightTime,
 
