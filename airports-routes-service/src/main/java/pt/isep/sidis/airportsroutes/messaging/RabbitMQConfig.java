@@ -1,4 +1,3 @@
-
 package pt.isep.sidis.airportsroutes.messaging;
 
 import org.springframework.amqp.core.Binding;
@@ -37,6 +36,47 @@ public class RabbitMQConfig {
                 .bind(aircraftQueue)
                 .to(sidisExchange)
                 .with(ROUTING_KEY);
+    }
+
+    // --- Filas do Read Model de Rotas (uma por instância/porta) ---
+
+    @Bean
+    public Queue routeCreatedQueue(@Value("${server.port}") String serverPort) {
+        return new Queue("airports.routes.created." + serverPort, true);
+    }
+
+    @Bean
+    public Binding routeCreatedBinding(Queue routeCreatedQueue, TopicExchange sidisExchange) {
+        return BindingBuilder
+                .bind(routeCreatedQueue)
+                .to(sidisExchange)
+                .with("route.created");
+    }
+
+    @Bean
+    public Queue routeUpdatedQueue(@Value("${server.port}") String serverPort) {
+        return new Queue("airports.routes.updated." + serverPort, true);
+    }
+
+    @Bean
+    public Binding routeUpdatedBinding(Queue routeUpdatedQueue, TopicExchange sidisExchange) {
+        return BindingBuilder
+                .bind(routeUpdatedQueue)
+                .to(sidisExchange)
+                .with("route.updated");
+    }
+
+    @Bean
+    public Queue routeDeactivatedQueue(@Value("${server.port}") String serverPort) {
+        return new Queue("airports.routes.deactivated." + serverPort, true);
+    }
+
+    @Bean
+    public Binding routeDeactivatedBinding(Queue routeDeactivatedQueue, TopicExchange sidisExchange) {
+        return BindingBuilder
+                .bind(routeDeactivatedQueue)
+                .to(sidisExchange)
+                .with("route.deactivated");
     }
 
     @Bean
