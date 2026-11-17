@@ -25,6 +25,7 @@ public class MaintenanceRecordProjectionHandler {
             return;
         }
 
+        System.out.println("READ MODEL UPDATED - MAINTENANCE RECORD CREATED: " + event.registrationNumber());
         repository.save(new MaintenanceRecordReadModel(
                 event.maintenanceRecordId(),
                 event.registrationNumber(),
@@ -33,4 +34,3 @@ public class MaintenanceRecordProjectionHandler {
         ));
     }
 }
-

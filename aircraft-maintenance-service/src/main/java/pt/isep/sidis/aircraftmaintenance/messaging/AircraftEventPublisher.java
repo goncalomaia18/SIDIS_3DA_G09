@@ -16,6 +16,7 @@ public class AircraftEventPublisher {
     }
 
     public void publishAircraftRegistered(AircraftRegisteredEvent event) {
+        System.out.println("RABBITMQ - AIRCRAFT REGISTERED PUBLISHED: " + event.registrationNumber());
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.EXCHANGE_NAME,
                 "aircraft.registered",
@@ -24,6 +25,7 @@ public class AircraftEventPublisher {
     }
 
     public void publishAircraftStatusUpdated(AircraftStatusUpdatedEvent event) {
+        System.out.println("RABBITMQ - AIRCRAFT STATUS UPDATED PUBLISHED: " + event.registrationNumber());
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.EXCHANGE_NAME,
                 "aircraft.status.updated",
@@ -32,6 +34,7 @@ public class AircraftEventPublisher {
     }
 
     public void publishMaintenanceRecordCreated(MaintenanceRecordCreatedEvent event) {
+        System.out.println("RABBITMQ - MAINTENANCE RECORD CREATED PUBLISHED: " + event.registrationNumber());
         rabbitTemplate.convertAndSend(
                 RabbitMQConfig.EXCHANGE_NAME,
                 "maintenance.record.created",

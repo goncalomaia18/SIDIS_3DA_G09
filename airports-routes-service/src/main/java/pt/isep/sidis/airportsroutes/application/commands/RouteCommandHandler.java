@@ -61,6 +61,7 @@ public class RouteCommandHandler {
                 route.getEstimatedFlightTime(),
                 route.getMinimumRange(),
                 route.getMinimumCapacity(),
+                distanceKm,
                 LocalDateTime.now()
         ));
     }

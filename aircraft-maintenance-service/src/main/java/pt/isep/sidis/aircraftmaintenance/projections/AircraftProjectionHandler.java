@@ -26,6 +26,7 @@ public class AircraftProjectionHandler {
             return;
         }
 
+        System.out.println("READ MODEL UPDATED - AIRCRAFT CREATED: " + event.registrationNumber());
         repository.save(new AircraftReadModel(
                 event.registrationNumber(),
                 event.modelName(),
@@ -38,8 +39,8 @@ public class AircraftProjectionHandler {
     public void onAircraftStatusUpdated(AircraftStatusUpdatedEvent event) {
         repository.findById(event.registrationNumber()).ifPresent(readModel -> {
             readModel.setStatus(event.status());
+            System.out.println("READ MODEL UPDATED - AIRCRAFT STATUS: " + event.registrationNumber());
             repository.save(readModel);
         });
     }
 }
-
