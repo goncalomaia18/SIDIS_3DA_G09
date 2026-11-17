@@ -1,4 +1,3 @@
-
 package pt.isep.sidis.aircraftmaintenance.application;
 
 import org.springframework.stereotype.Service;
@@ -17,6 +16,7 @@ import pt.isep.sidis.aircraftmaintenance.repositories.AircraftModelRepository;
 import pt.isep.sidis.aircraftmaintenance.repositories.AircraftRepository;
 import pt.isep.sidis.aircraftmaintenance.client.AircraftPeerClient;
 import pt.isep.sidis.aircraftmaintenance.events.AircraftRegisteredEvent;
+import pt.isep.sidis.aircraftmaintenance.events.AircraftStatusUpdatedEvent;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -219,6 +219,16 @@ public class AircraftService {
 
         response.put("aircraft", mapToViewDTO(aircraft));
         response.put("swapReport", swapLogs);
+
+        AircraftStatusUpdatedEvent event = new AircraftStatusUpdatedEvent(
+                UUID.randomUUID(),
+                aircraft.getRegistrationNumber().number(),
+                aircraft.getAircraftModel().getModelName().name(),
+                aircraft.getStatus().name(),
+                Instant.now()
+        );
+
+        applicationEventPublisher.publishEvent(event);
 
         return response;
     }

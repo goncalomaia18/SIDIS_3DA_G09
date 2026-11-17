@@ -1,17 +1,21 @@
 package pt.isep.sidis.aircraftmaintenance.application;
 
-import org.springframework.stereotype.Service;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 import pt.isep.sidis.aircraftmaintenance.application.dto.*;
 import pt.isep.sidis.aircraftmaintenance.domain.*;
+import pt.isep.sidis.aircraftmaintenance.events.MaintenanceRecordCreatedEvent;
 import pt.isep.sidis.aircraftmaintenance.repositories.*;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,17 +26,21 @@ public class MaintenanceService {
     private final AircraftRepository aircraftRepository;
     private final AircraftModelRepository aircraftModelRepository;
     private final MaintenancePartRepository partRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
-    public MaintenanceService(MaintenanceTemplateRepository templateRepository,
-                              MaintenanceRecordRepository recordRepository,
-                              AircraftRepository aircraftRepository,
-                              AircraftModelRepository aircraftModelRepository,
-                              MaintenancePartRepository partRepository) {
+    public MaintenanceService(
+            MaintenanceTemplateRepository templateRepository,
+            MaintenanceRecordRepository recordRepository,
+            AircraftRepository aircraftRepository,
+            AircraftModelRepository aircraftModelRepository,
+            MaintenancePartRepository partRepository,
+            ApplicationEventPublisher applicationEventPublisher) {
         this.templateRepository = templateRepository;
         this.recordRepository = recordRepository;
         this.aircraftRepository = aircraftRepository;
         this.aircraftModelRepository = aircraftModelRepository;
         this.partRepository = partRepository;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     public MaintenanceTemplate createTemplate(CreateMaintenanceTemplateDTO dto) {
@@ -60,7 +68,18 @@ public class MaintenanceService {
         MaintenanceRecord record = new MaintenanceRecord(
                 aircraft, template, dto.description(), dto.expectedDuration(), dto.componentCategory(), startDate, dto.cost()
         );
-        return recordRepository.save(record);
+        MaintenanceRecord saved = recordRepository.save(record);
+
+        applicationEventPublisher.publishEvent(new MaintenanceRecordCreatedEvent(
+                UUID.randomUUID(),
+                saved.getPk(),
+                aircraft.getRegistrationNumber().number(),
+                aircraft.getAircraftModel().getModelName().name(),
+                saved.getStatus().name(),
+                Instant.now()
+        ));
+
+        return saved;
     }
 
     public List<MaintenanceRecord> getAircraftHistory(String registrationNumber) {
@@ -89,7 +108,6 @@ public class MaintenanceService {
         return recordRepository.save(record);
     }
 
-    // CORRIGIDO: Aceita agora o Enum ComponentCategory diretamente, garantindo type-safety
     public Page<MaintenanceRecord> searchMaintenanceRecords(
             String registrationNumber, String fromDate, String toDate, ComponentCategory category, Pageable pageable) {
 
