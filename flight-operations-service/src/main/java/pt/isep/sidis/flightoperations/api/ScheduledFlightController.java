@@ -1,3 +1,4 @@
+
 package pt.isep.sidis.flightoperations.api;
 
 import jakarta.validation.Valid;
@@ -6,9 +7,11 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import pt.isep.sidis.flightoperations.application.commands.ScheduledFlightCommandHandler;
+import pt.isep.sidis.flightoperations.application.queries.ScheduledFlightQueryHandler;
 import pt.isep.sidis.flightoperations.application.dto.CreateScheduledFlightDTO;
 import pt.isep.sidis.flightoperations.application.dto.ScheduledFlightViewDTO;
-import pt.isep.sidis.flightoperations.application.ScheduledFlightService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,47 +23,75 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping("/api/scheduled-flights")
 public class ScheduledFlightController {
 
-    private final ScheduledFlightService service;
+    private final ScheduledFlightCommandHandler commandHandler;
+    private final ScheduledFlightQueryHandler queryHandler;
 
-    public ScheduledFlightController(ScheduledFlightService service) {
-        this.service = service;
+    public ScheduledFlightController(
+            ScheduledFlightCommandHandler commandHandler,
+            ScheduledFlightQueryHandler queryHandler) {
+
+        this.commandHandler = commandHandler;
+        this.queryHandler = queryHandler;
     }
 
     @PostMapping
-    public ResponseEntity<EntityModel<ScheduledFlightViewDTO>> scheduleFlight(@Valid @RequestBody CreateScheduledFlightDTO dto) {
-        ScheduledFlightViewDTO created = service.scheduleFlight(dto);
-        EntityModel<ScheduledFlightViewDTO> resource = EntityModel.of(created);
+    public ResponseEntity<EntityModel<ScheduledFlightViewDTO>> scheduleFlight(
+            @Valid @RequestBody CreateScheduledFlightDTO dto) {
 
-        resource.add(linkTo(methodOn(ScheduledFlightController.class)
-                .getFlightsByAircraft(dto.registrationNumber()))
-                .withRel("aircraft-flights"));
+        ScheduledFlightViewDTO created = commandHandler.scheduleFlight(dto);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(resource);
+        EntityModel<ScheduledFlightViewDTO> resource =
+                EntityModel.of(created);
+
+        resource.add(
+                linkTo(methodOn(ScheduledFlightController.class)
+                        .getFlightsByAircraft(dto.registrationNumber()))
+                        .withRel("aircraft-flights")
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(resource);
     }
 
     @GetMapping("/aircraft/{registrationNumber}")
-    public ResponseEntity<CollectionModel<EntityModel<ScheduledFlightViewDTO>>> getFlightsByAircraft(@PathVariable String registrationNumber) {
-        List<ScheduledFlightViewDTO> flights = service.getScheduledFlightsByAircraft(registrationNumber);
+    public ResponseEntity<CollectionModel<EntityModel<ScheduledFlightViewDTO>>>
+    getFlightsByAircraft(@PathVariable String registrationNumber) {
 
-        // Retorna 204 se a lista estiver vazia
+        List<ScheduledFlightViewDTO> flights =
+                queryHandler.getScheduledFlightsByAircraft(registrationNumber);
+
         if (flights.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
 
-        List<EntityModel<ScheduledFlightViewDTO>> resources = flights.stream()
-                .map(dto -> EntityModel.of(dto,
-                        linkTo(methodOn(ScheduledFlightController.class).getFlightsByAircraft(registrationNumber)).withSelfRel()))
-                .collect(Collectors.toList());
+        List<EntityModel<ScheduledFlightViewDTO>> resources =
+                flights.stream()
+                        .map(dto -> EntityModel.of(
+                                dto,
+                                linkTo(methodOn(ScheduledFlightController.class)
+                                        .getFlightsByAircraft(registrationNumber))
+                                        .withSelfRel()
+                        ))
+                        .collect(Collectors.toList());
 
-        return ResponseEntity.ok(CollectionModel.of(resources,
-                linkTo(methodOn(ScheduledFlightController.class).getFlightsByAircraft(registrationNumber)).withSelfRel()));
+        return ResponseEntity.ok(
+                CollectionModel.of(
+                        resources,
+                        linkTo(methodOn(ScheduledFlightController.class)
+                                .getFlightsByAircraft(registrationNumber))
+                                .withSelfRel()
+                )
+        );
     }
 
-    /* US229 - As a Backoffice Operator, I want to generate flight utilization reports showing which routes are most frequently flown. */
+    /* US229 - As a Backoffice Operator, I want to generate
+       flight utilization reports showing which routes
+       are most frequently flown. */
     @GetMapping("/route-utilization")
     public ResponseEntity<?> getRouteUtilizationReport() {
 
-        var report = service.getRouteUtilizationReport();
+        var report = queryHandler.getRouteUtilizationReport();
 
         if (report == null) {
             return ResponseEntity.noContent().build();
@@ -69,14 +100,12 @@ public class ScheduledFlightController {
         return ResponseEntity.ok(report);
     }
 
-
     @GetMapping("/local/aircraft/{registrationNumber}")
-    public ResponseEntity<List<ScheduledFlightViewDTO>> getLocalFlightsByAircraft(
-            @PathVariable String registrationNumber) {
+    public ResponseEntity<List<ScheduledFlightViewDTO>>
+    getLocalFlightsByAircraft(@PathVariable String registrationNumber) {
 
         return ResponseEntity.ok(
-                service.getLocalFlightsByAircraft(registrationNumber));
+                queryHandler.getLocalFlightsByAircraft(registrationNumber)
+        );
     }
-
-
 }
