@@ -60,6 +60,9 @@ public class Route {
     public Integer getMinimumCapacity() { return minimumCapacity; }
     public RouteStatus getStatus() { return status; }
 
+    public Long getPk() {
+        return pk;
+    }
 
     // MÉTODOS DE NEGÓCIO (US112)
 
