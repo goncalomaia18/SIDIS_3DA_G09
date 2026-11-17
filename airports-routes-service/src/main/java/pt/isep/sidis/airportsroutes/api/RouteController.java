@@ -60,20 +60,27 @@ public class RouteController {
     // --- US112: Atualizar Parâmetros da Rota ---
     @PatchMapping("/{id}")
     @Operation(summary = "Updates technical parameters of an existing route")
-    public ResponseEntity<EntityModel<RouteViewDTO>> updateRoute(@PathVariable String id, @Valid @RequestBody UpdateRouteDTO dto) {
-        if (dto != null) {
-            commandHandler.handleUpdateRoute(
-                    Long.parseLong(id),
-                    dto.estimatedFlightTime(),
-                    dto.minimumRange(),
-                    dto.minimumCapacity()
-            );
-        }
+    public ResponseEntity<EntityModel<RouteViewDTO>> updateRoute(
+            @PathVariable String id,
+            @Valid @RequestBody UpdateRouteDTO dto) {
 
-        RouteViewDTO updated = routeService.updateRoute(id, dto);
+        commandHandler.handleUpdateRoute(
+                id,
+                dto.estimatedFlightTime(),
+                dto.minimumRange(),
+                dto.minimumCapacity()
+        );
+
+        RouteViewDTO updated = routeService.getRoute(id);
+
         EntityModel<RouteViewDTO> resource = EntityModel.of(updated);
-        resource.add(linkTo(methodOn(RouteController.class).deactivateRoute(id)).withRel("deactivate-route"));
-        resource.add(linkTo(methodOn(RouteController.class).getRouteHistory(id)).withRel("route-history"));
+
+        resource.add(linkTo(methodOn(RouteController.class)
+                .deactivateRoute(id)).withRel("deactivate-route"));
+
+        resource.add(linkTo(methodOn(RouteController.class)
+                .getRouteHistory(id)).withRel("route-history"));
+
         return ResponseEntity.ok(resource);
     }
 

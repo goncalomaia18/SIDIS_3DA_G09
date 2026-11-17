@@ -1,4 +1,3 @@
-
 package pt.isep.sidis.flightoperations.application;
 
 import org.springframework.stereotype.Service;
