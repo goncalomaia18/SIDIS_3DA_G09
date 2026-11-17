@@ -12,11 +12,13 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pt.isep.sidis.airportsroutes.application.RouteService;
+import pt.isep.sidis.airportsroutes.application.commands.RouteCommandHandler;
+import pt.isep.sidis.airportsroutes.application.queries.RouteQueryHandler;
 import pt.isep.sidis.airportsroutes.application.dto.CreateRouteDTO;
 import pt.isep.sidis.airportsroutes.application.dto.RouteHistoryDTO;
 import pt.isep.sidis.airportsroutes.application.dto.RouteViewDTO;
 import pt.isep.sidis.airportsroutes.application.dto.UpdateRouteDTO;
-import pt.isep.sidis.airportsroutes.application.RouteService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,9 +31,15 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class RouteController {
 
     private final RouteService routeService;
+    private final RouteCommandHandler commandHandler;
+    private final RouteQueryHandler queryHandler;
 
-    public RouteController(RouteService routeService) {
+    public RouteController(RouteService routeService,
+                           RouteCommandHandler commandHandler,
+                           RouteQueryHandler queryHandler) {
         this.routeService = routeService;
+        this.commandHandler = commandHandler;
+        this.queryHandler = queryHandler;
     }
 
     // --- US110: Criar uma Rota ---
@@ -53,6 +61,15 @@ public class RouteController {
     @PatchMapping("/{id}")
     @Operation(summary = "Updates technical parameters of an existing route")
     public ResponseEntity<EntityModel<RouteViewDTO>> updateRoute(@PathVariable String id, @Valid @RequestBody UpdateRouteDTO dto) {
+        if (dto != null) {
+            commandHandler.handleUpdateRoute(
+                    Long.parseLong(id),
+                    dto.estimatedFlightTime(),
+                    dto.minimumRange(),
+                    dto.minimumCapacity()
+            );
+        }
+
         RouteViewDTO updated = routeService.updateRoute(id, dto);
         EntityModel<RouteViewDTO> resource = EntityModel.of(updated);
         resource.add(linkTo(methodOn(RouteController.class).deactivateRoute(id)).withRel("deactivate-route"));
@@ -64,6 +81,8 @@ public class RouteController {
     @PatchMapping("/{id}/deactivate")
     @Operation(summary = "Deactivates a route")
     public ResponseEntity<EntityModel<RouteViewDTO>> deactivateRoute(@PathVariable String id) {
+        commandHandler.handleDeactivateRoute(Long.parseLong(id));
+
         RouteViewDTO deactivated = routeService.deactivateRoute(id);
         EntityModel<RouteViewDTO> resource = EntityModel.of(deactivated);
         resource.add(linkTo(methodOn(RouteController.class).updateRoute(id, null)).withRel("update-route"));
@@ -80,7 +99,6 @@ public class RouteController {
 
         List<pt.isep.sidis.airportsroutes.application.dto.AlternativeRouteDTO> alternatives = routeService.findAlternativeRoutes(originIata, destinationIata);
 
-        // Se não houver forma de chegar ao destino, devolve 204 No Content
         if (alternatives.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -239,8 +257,4 @@ public class RouteController {
 
         return ResponseEntity.ok(routeService.getLocalRoute(id));
     }
-
-
-
-
 }
