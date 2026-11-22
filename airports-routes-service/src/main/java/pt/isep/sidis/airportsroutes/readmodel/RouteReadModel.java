@@ -19,6 +19,8 @@ public class RouteReadModel {
     private Double minimumRange;
     private Integer minimumCapacity;
     private String status;
+    private String originAirportStatus;
+    private String destinationAirportStatus;
 
     protected RouteReadModel() {}
 
@@ -45,6 +47,8 @@ public class RouteReadModel {
     public Double getMinimumRange() { return minimumRange; }
     public Integer getMinimumCapacity() { return minimumCapacity; }
     public String getStatus() { return status; }
+    public String getOriginAirportStatus() { return originAirportStatus;}
+    public String getDestinationAirportStatus() {return destinationAirportStatus;}
 
     public void setOriginIata(String originIata) { this.originIata = originIata; }
     public void setDestinationIata(String destinationIata) { this.destinationIata = destinationIata; }
@@ -52,4 +56,6 @@ public class RouteReadModel {
     public void setMinimumRange(Double minimumRange) { this.minimumRange = minimumRange; }
     public void setMinimumCapacity(Integer minimumCapacity) { this.minimumCapacity = minimumCapacity; }
     public void setStatus(String status) { this.status = status; }
+    public void setOriginAirportStatus(String originAirportStatus) {this.originAirportStatus = originAirportStatus;}
+    public void setDestinationAirportStatus(String destinationAirportStatus) {this.destinationAirportStatus = destinationAirportStatus;}
 }

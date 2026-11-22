@@ -9,7 +9,11 @@ public record RouteCreatedEvent(
         String routeId,
         String originIata,
         String destinationIata,
+        Integer estimatedFlightTime,
+        Double minimumRange,
+        Integer minimumCapacity,
+        String originAirportStatus,
+        String destinationAirportStatus,
         String status,
         Instant occurredAt
-) {
-}
+) {}

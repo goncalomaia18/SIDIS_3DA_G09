@@ -85,17 +85,25 @@ public class RouteController {
     }
 
     // --- US112: Desativar a Rota ---
+
     @PatchMapping("/{id}/deactivate")
     @Operation(summary = "Deactivates a route")
-    public ResponseEntity<EntityModel<RouteViewDTO>> deactivateRoute(@PathVariable String id) {
-        commandHandler.handleDeactivateRoute(Long.parseLong(id));
+    public ResponseEntity<EntityModel<RouteViewDTO>> deactivateRoute(
+            @PathVariable String id) {
 
-        RouteViewDTO deactivated = routeService.deactivateRoute(id);
+        RouteViewDTO deactivated = commandHandler.handleDeactivateRoute(id);
+
         EntityModel<RouteViewDTO> resource = EntityModel.of(deactivated);
-        resource.add(linkTo(methodOn(RouteController.class).updateRoute(id, null)).withRel("update-route"));
-        resource.add(linkTo(methodOn(RouteController.class).getRouteHistory(id)).withRel("route-history"));
+
+        resource.add(linkTo(methodOn(RouteController.class)
+                .updateRoute(id, null)).withRel("update-route"));
+
+        resource.add(linkTo(methodOn(RouteController.class)
+                .getRouteHistory(id)).withRel("route-history"));
+
         return ResponseEntity.ok(resource);
     }
+
 
     // --- US216: Pesquisar Rotas Alternativas ---
     @GetMapping("/alternatives")
@@ -121,16 +129,31 @@ public class RouteController {
     }
 
     // --- US113: Ver detalhes de uma rota pelo ID ---
+
+
     @GetMapping("/{id}")
-    @Operation(summary = "Get route details by ID")
-    public ResponseEntity<EntityModel<RouteViewDTO>> getRouteById(@PathVariable String id) {
-        RouteViewDTO route = routeService.getRoute(id);
+    @Operation(summary = "Get route details by ID using CQRS Read Model")
+    public ResponseEntity<EntityModel<RouteViewDTO>> getRouteById(
+            @PathVariable String id) {
+
+        var readModel = queryHandler.handleGetRouteById(id);
+
+        RouteViewDTO route = convertReadModelToDTO(readModel);
+
         EntityModel<RouteViewDTO> resource = EntityModel.of(route);
-        resource.add(linkTo(methodOn(RouteController.class).getRouteById(id)).withSelfRel());
-        resource.add(linkTo(methodOn(RouteController.class).updateRoute(id, null)).withRel("update-route"));
-        resource.add(linkTo(methodOn(RouteController.class).getRouteHistory(id)).withRel("route-history"));
+
+        resource.add(linkTo(methodOn(RouteController.class)
+                .getRouteById(id)).withSelfRel());
+
+        resource.add(linkTo(methodOn(RouteController.class)
+                .updateRoute(id, null)).withRel("update-route"));
+
+        resource.add(linkTo(methodOn(RouteController.class)
+                .getRouteHistory(id)).withRel("route-history"));
+
         return ResponseEntity.ok(resource);
     }
+
 
     // --- US111: Ver histórico de uma rota ---
     @GetMapping("/{id}/history")
@@ -148,33 +171,45 @@ public class RouteController {
     }
 
     // --- US113: Pesquisar Rotas por Aeroporto  ---
+
     @GetMapping("/airport/{iata}")
-    @Operation(summary = "Search routes by origin airport (Paged)")
+    @Operation(summary = "Search routes by origin airport using CQRS (Paged)")
     public ResponseEntity<PagedModel<EntityModel<RouteViewDTO>>> searchRoutesByAirport(
             @PathVariable String iata,
             @PageableDefault(size = 10) Pageable pageable,
             PagedResourcesAssembler<RouteViewDTO> assembler) {
 
-        Page<RouteViewDTO> page = routeService.searchRoutes(iata, null, pageable);
-        PagedModel<EntityModel<RouteViewDTO>> pagedModel = assembler.toModel(page, this::addLinksToRoute);
+        Page<RouteViewDTO> page = queryHandler
+                .handleSearchRoutes(iata, null, pageable)
+                .map(this::convertReadModelToDTO);
+
+        PagedModel<EntityModel<RouteViewDTO>> pagedModel =
+                assembler.toModel(page, this::addLinksToRoute);
 
         return ResponseEntity.ok(pagedModel);
     }
 
+
     // --- US113 e US114: Pesquisar Rotas  ---
+
     @GetMapping
-    @Operation(summary = "Search routes by origin, destination, or both (Paged)")
+    @Operation(summary = "Search routes using CQRS Read Model (Paged)")
     public ResponseEntity<PagedModel<EntityModel<RouteViewDTO>>> searchRoutes(
             @RequestParam(required = false) String origin,
             @RequestParam(required = false) String destination,
             @PageableDefault(size = 10) Pageable pageable,
             PagedResourcesAssembler<RouteViewDTO> assembler) {
 
-        Page<RouteViewDTO> page = routeService.searchRoutes(origin, destination, pageable);
-        PagedModel<EntityModel<RouteViewDTO>> pagedModel = assembler.toModel(page, this::addLinksToRoute);
+        Page<RouteViewDTO> page = queryHandler
+                .handleSearchRoutes(origin, destination, pageable)
+                .map(this::convertReadModelToDTO);
+
+        PagedModel<EntityModel<RouteViewDTO>> pagedModel =
+                assembler.toModel(page, this::addLinksToRoute);
 
         return ResponseEntity.ok(pagedModel);
     }
+
 
     private EntityModel<RouteViewDTO> addLinksToRoute(RouteViewDTO route) {
         EntityModel<RouteViewDTO> em = EntityModel.of(route);
@@ -264,4 +299,34 @@ public class RouteController {
 
         return ResponseEntity.ok(routeService.getLocalRoute(id));
     }
+
+    @GetMapping("/read-model/{id}")
+    @Operation(summary = "Get route directly from the local CQRS Read Model")
+    public ResponseEntity<pt.isep.sidis.airportsroutes.readmodel.RouteReadModel>
+    getRouteFromReadModel(@PathVariable String id) {
+
+        return ResponseEntity.ok(
+                queryHandler.handleGetRouteById(id)
+        );
+    }
+
+
+    private RouteViewDTO convertReadModelToDTO(
+            pt.isep.sidis.airportsroutes.readmodel.RouteReadModel readModel) {
+
+        return new RouteViewDTO(
+                readModel.getRouteId(),
+                readModel.getOriginIata(),
+                readModel.getDestinationIata(),
+                readModel.getStatus(),
+                readModel.getMinimumCapacity(),
+                readModel.getMinimumRange(),
+                readModel.getOriginAirportStatus(),
+                readModel.getDestinationAirportStatus()
+        );
+    }
+
+
+
+
 }

@@ -1,7 +1,10 @@
+
 package pt.isep.sidis.airportsroutes.application.commands;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pt.isep.sidis.airportsroutes.application.RouteService;
+import pt.isep.sidis.airportsroutes.application.dto.RouteViewDTO;
 import pt.isep.sidis.airportsroutes.domain.Route;
 import pt.isep.sidis.airportsroutes.domain.RouteId;
 import pt.isep.sidis.airportsroutes.events.RouteDeactivatedEvent;
@@ -17,10 +20,16 @@ public class RouteCommandHandler {
 
     private final RouteRepository routeRepository;
     private final RouteEventPublisher eventPublisher;
+    private final RouteService routeService;
 
-    public RouteCommandHandler(RouteRepository routeRepository, RouteEventPublisher eventPublisher) {
+    public RouteCommandHandler(
+            RouteRepository routeRepository,
+            RouteEventPublisher eventPublisher,
+            RouteService routeService) {
+
         this.routeRepository = routeRepository;
         this.eventPublisher = eventPublisher;
+        this.routeService = routeService;
     }
 
     public void handleUpdateRoute(
@@ -30,8 +39,8 @@ public class RouteCommandHandler {
             Integer minimumCapacity) {
 
         Route route = routeRepository.findByRouteId(new RouteId(routeId))
-                .orElseThrow(() -> new RuntimeException(
-                        "Rota nÃ£o encontrada com ID: " + routeId
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Rota não encontrada com ID: " + routeId
                 ));
 
         route.updateParameters(
@@ -41,14 +50,6 @@ public class RouteCommandHandler {
         );
 
         routeRepository.save(route);
-
-        String originCode = route.getOrigin() != null
-                ? route.getOrigin().getIataCode().toString()
-                : "";
-
-        String destinationCode = route.getDestination() != null
-                ? route.getDestination().getIataCode().toString()
-                : "";
 
         double distanceKm = route.getMinimumRange() != null
                 ? route.getMinimumRange()
@@ -66,16 +67,15 @@ public class RouteCommandHandler {
         ));
     }
 
-    public void handleDeactivateRoute(Long routeId) {
-        Route route = routeRepository.findById(routeId)
-                .orElseThrow(() -> new RuntimeException("Rota não encontrada com ID: " + routeId));
+    public RouteViewDTO handleDeactivateRoute(String routeId) {
 
-        route.deactivate();
-        routeRepository.save(route);
+        RouteViewDTO deactivated = routeService.deactivateRoute(routeId);
 
         eventPublisher.publishRouteDeactivated(new RouteDeactivatedEvent(
                 routeId,
                 LocalDateTime.now()
         ));
+
+        return deactivated;
     }
 }

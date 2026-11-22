@@ -57,6 +57,7 @@ public class RouteService {
 
 
 
+
     @Transactional
     public RouteViewDTO createRoute(CreateRouteDTO dto) {
 
@@ -69,8 +70,7 @@ public class RouteService {
         Airport destination = airportRepository
                 .findByIataCodeString(dto.destinationIata())
                 .orElseThrow(() -> new IllegalArgumentException(
-                        "Destination Airport not found: "
-                                + dto.destinationIata()
+                        "Destination Airport not found: " + dto.destinationIata()
                 ));
 
         RouteId routeId = new RouteId(dto.routeId());
@@ -93,14 +93,21 @@ public class RouteService {
                 )
         );
 
+
         RouteCreatedEvent event = new RouteCreatedEvent(
                 UUID.randomUUID(),
                 savedRoute.getRouteId().id(),
                 origin.getIataCode().code(),
                 destination.getIataCode().code(),
+                savedRoute.getEstimatedFlightTime(),
+                savedRoute.getMinimumRange(),
+                savedRoute.getMinimumCapacity(),
+                origin.getStatus().name(),
+                destination.getStatus().name(),
                 savedRoute.getStatus().name(),
                 Instant.now()
         );
+
 
         applicationEventPublisher.publishEvent(event);
 

@@ -28,44 +28,95 @@ public class RouteEventHandler {
         publisher.publishRouteCreated(event);
     }
 
-    // 2. Consumidor RabbitMQ: projeta a nova rota no Read Model
+
     @RabbitListener(queues = "#{routeCreatedQueue.name}")
     @Transactional
     public void handleRouteCreated(RouteCreatedEvent event) {
+
         RouteReadModel readModel = new RouteReadModel(
                 event.routeId(),
                 event.originIata(),
                 event.destinationIata(),
-                null,
-                null,
-                null,
+                event.estimatedFlightTime(),
+                event.minimumRange(),
+                event.minimumCapacity(),
                 event.status() != null ? event.status() : "ACTIVE"
         );
+
+        readModel.setOriginAirportStatus(
+                event.originAirportStatus()
+        );
+
+        readModel.setDestinationAirportStatus(
+                event.destinationAirportStatus()
+        );
+
         routeReadRepository.save(readModel);
-        System.out.println("READ MODEL UPDATED - ROUTE CREATED: " + event.routeId());
+
+        System.out.println(
+                "READ MODEL UPDATED - ROUTE CREATED: "
+                        + event.routeId()
+        );
     }
 
+
+
     // 3. Consumidor RabbitMQ: atualiza o Read Model quando a rota é alterada
+
     @RabbitListener(queues = "#{routeUpdatedQueue.name}")
     @Transactional
     public void handleRouteUpdated(RouteUpdatedEvent event) {
-        routeReadRepository.findById(String.valueOf(event.routeId())).ifPresent(readModel -> {
-            readModel.setOriginIata(event.originAirportCode());
-            readModel.setDestinationIata(event.destinationAirportCode());
-            readModel.setMinimumRange(event.distanceKm());
-            routeReadRepository.save(readModel);
-            System.out.println("READ MODEL UPDATED - ROUTE UPDATED: " + event.routeId());
-        });
+
+        routeReadRepository.findById(event.routeId())
+                .ifPresent(readModel -> {
+
+                    readModel.setOriginIata(
+                            event.originAirportCode()
+                    );
+
+                    readModel.setDestinationIata(
+                            event.destinationAirportCode()
+                    );
+
+                    readModel.setEstimatedFlightTime(
+                            event.estimatedFlightTime()
+                    );
+
+                    readModel.setMinimumRange(
+                            event.minimumRange()
+                    );
+
+                    readModel.setMinimumCapacity(
+                            event.minimumCapacity()
+                    );
+
+                    routeReadRepository.save(readModel);
+
+                    System.out.println(
+                            "READ MODEL UPDATED - ROUTE UPDATED: "
+                                    + event.routeId()
+                    );
+                });
     }
 
-    // 4. Consumidor RabbitMQ: marca como INACTIVE no Read Model quando desativada
+
+
     @RabbitListener(queues = "#{routeDeactivatedQueue.name}")
     @Transactional
     public void handleRouteDeactivated(RouteDeactivatedEvent event) {
-        routeReadRepository.findById(String.valueOf(event.routeId())).ifPresent(readModel -> {
-            readModel.setStatus("INACTIVE");
-            routeReadRepository.save(readModel);
-            System.out.println("READ MODEL UPDATED - ROUTE DEACTIVATED: " + event.routeId());
-        });
+
+        routeReadRepository.findById(event.routeId())
+                .ifPresent(readModel -> {
+
+                    readModel.setStatus("INACTIVE");
+
+                    routeReadRepository.save(readModel);
+
+                    System.out.println(
+                            "READ MODEL UPDATED - ROUTE DEACTIVATED: "
+                                    + event.routeId()
+                    );
+                });
     }
+
 }
