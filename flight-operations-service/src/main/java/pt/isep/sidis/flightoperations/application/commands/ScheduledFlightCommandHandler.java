@@ -107,7 +107,7 @@ public class ScheduledFlightCommandHandler {
         eventPublisher.publishEvent(
                 new ScheduledFlightCreatedEvent(
                         UUID.randomUUID(),
-                        savedFlight.getPk(),
+                        savedFlight.getFlightUuid(),
                         savedFlight.getRouteId(),
                         savedFlight.getAircraftRegistrationNumber(),
                         savedFlight.getScheduledDateTime(),
@@ -120,7 +120,7 @@ public class ScheduledFlightCommandHandler {
 
     private ScheduledFlightViewDTO toViewDTO(ScheduledFlight flight) {
         return new ScheduledFlightViewDTO(
-                flight.getPk(),
+                flight.getFlightUuid(),
                 flight.getRouteId(),
                 flight.getAircraftRegistrationNumber(),
                 flight.getScheduledDateTime().toString(),

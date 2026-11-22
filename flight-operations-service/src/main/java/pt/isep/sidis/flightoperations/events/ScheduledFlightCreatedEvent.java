@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public record ScheduledFlightCreatedEvent(
         UUID eventId,
-        Long flightId,
+        UUID flightId,
         String routeId,
         String registrationNumber,
         LocalDateTime scheduledDateTime,

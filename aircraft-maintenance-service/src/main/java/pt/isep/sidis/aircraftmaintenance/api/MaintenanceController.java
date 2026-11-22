@@ -16,6 +16,13 @@ import pt.isep.sidis.aircraftmaintenance.domain.MaintenanceTemplate;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import pt.isep.sidis.aircraftmaintenance.repositories.MaintenanceRecordReadRepository;
+import pt.isep.sidis.aircraftmaintenance.readmodel.MaintenanceRecordReadModel;
+import org.springframework.data.jpa.domain.Specification;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
+
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,10 +36,17 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class MaintenanceController {
 
     private final MaintenanceService maintenanceService;
+    private final MaintenanceRecordReadRepository maintenanceReadRepository;
 
-    public MaintenanceController(MaintenanceService maintenanceService) {
+
+    public MaintenanceController(
+            MaintenanceService maintenanceService,
+            MaintenanceRecordReadRepository maintenanceReadRepository) {
+
         this.maintenanceService = maintenanceService;
+        this.maintenanceReadRepository = maintenanceReadRepository;
     }
+
 
     @PostMapping("/templates")
     public ResponseEntity<EntityModel<MaintenanceTemplate>> createTemplate(@Valid @RequestBody CreateMaintenanceTemplateDTO dto) {
@@ -51,23 +65,51 @@ public class MaintenanceController {
         return new ResponseEntity<>(resource, HttpStatus.CREATED);
     }
 
-    @GetMapping("/records/aircraft/{registrationNumber}")
-    public ResponseEntity<CollectionModel<EntityModel<MaintenanceRecord>>> getAircraftHistory(@PathVariable String registrationNumber) {
-        List<EntityModel<MaintenanceRecord>> records = maintenanceService.getAircraftHistory(registrationNumber)
-                .stream()
-                .map(record -> {
-                    EntityModel<MaintenanceRecord> em = EntityModel.of(record);
-                    if (record.getStatus() == MaintenanceRecordStatus.SCHEDULED) {
-                        em.add(linkTo(methodOn(MaintenanceController.class).completeMaintenance(record.getPk(), null)).withRel("complete-this-record"));
-                    }
-                    return em;
-                })
-                .collect(Collectors.toList());
 
-        CollectionModel<EntityModel<MaintenanceRecord>> collection = CollectionModel.of(records);
-        collection.add(linkTo(methodOn(MaintenanceController.class).getAircraftHistory(registrationNumber)).withSelfRel());
+    @GetMapping("/records/aircraft/{registrationNumber}")
+    public ResponseEntity<CollectionModel<EntityModel<MaintenanceRecordReadModel>>>
+    getAircraftHistory(@PathVariable String registrationNumber) {
+
+        List<EntityModel<MaintenanceRecordReadModel>> records =
+                maintenanceReadRepository
+                        .findByRegistrationNumberOrderByStartDateDesc(
+                                registrationNumber.trim().toUpperCase()
+                        )
+                        .stream()
+                        .map(record -> {
+
+                            EntityModel<MaintenanceRecordReadModel> em =
+                                    EntityModel.of(record);
+
+                            if ("SCHEDULED".equals(record.getStatus())) {
+                                em.add(
+                                        linkTo(
+                                                methodOn(MaintenanceController.class)
+                                                        .completeMaintenance(
+                                                                record.getMaintenanceRecordId(),
+                                                                null
+                                                        )
+                                        ).withRel("complete-this-record")
+                                );
+                            }
+
+                            return em;
+                        })
+                        .collect(Collectors.toList());
+
+        CollectionModel<EntityModel<MaintenanceRecordReadModel>> collection =
+                CollectionModel.of(records);
+
+        collection.add(
+                linkTo(
+                        methodOn(MaintenanceController.class)
+                                .getAircraftHistory(registrationNumber)
+                ).withSelfRel()
+        );
+
         return ResponseEntity.ok(collection);
     }
+
 
     @GetMapping("/records/total-hours")
     public ResponseEntity<EntityModel<java.util.Map<String, Integer>>> getTotalHours() {
@@ -101,36 +143,109 @@ public class MaintenanceController {
         return ResponseEntity.ok(resource);
     }
 
+
     @GetMapping("/records/search")
-    public ResponseEntity<PagedModel<EntityModel<MaintenanceRecord>>> searchRecords(
+    public ResponseEntity<PagedModel<EntityModel<MaintenanceRecordReadModel>>> searchRecords(
             @RequestParam(required = false) String registrationNumber,
             @RequestParam(required = false) String fromDate,
             @RequestParam(required = false) String toDate,
             @RequestParam(required = false, name = "componentCategory") String category,
             Pageable pageable,
-            PagedResourcesAssembler<MaintenanceRecord> assembler) {
+            PagedResourcesAssembler<MaintenanceRecordReadModel> assembler) {
 
-        ComponentCategory categoryEnum = null;
-        if (category != null && !category.isBlank()) {
-            try {
-                categoryEnum = ComponentCategory.valueOf(category.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                return ResponseEntity.badRequest().build();
+        LocalDateTime from = null;
+        LocalDateTime to = null;
+        String normalizedCategory = null;
+
+        try {
+            if (fromDate != null && !fromDate.isBlank()) {
+                from = LocalDate.parse(fromDate).atStartOfDay();
             }
+
+            if (toDate != null && !toDate.isBlank()) {
+                to = LocalDate.parse(toDate).plusDays(1).atStartOfDay();
+            }
+
+            if (category != null && !category.isBlank()) {
+                normalizedCategory =
+                        ComponentCategory.valueOf(
+                                category.trim().toUpperCase()
+                        ).name();
+            }
+        } catch (DateTimeParseException | IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().build();
         }
 
-        Page<MaintenanceRecord> page = maintenanceService.searchMaintenanceRecords(registrationNumber, fromDate, toDate, categoryEnum, pageable);
+        final LocalDateTime start = from;
+        final LocalDateTime endExclusive = to;
+        final String componentCategory = normalizedCategory;
 
-        PagedModel<EntityModel<MaintenanceRecord>> pagedModel = assembler.toModel(page, record -> {
-            EntityModel<MaintenanceRecord> em = EntityModel.of(record);
-            if (record.getStatus() == MaintenanceRecordStatus.SCHEDULED) {
-                em.add(linkTo(methodOn(MaintenanceController.class).completeMaintenance(record.getPk(), null)).withRel("complete-this-record"));
-            }
-            return em;
-        });
+        Specification<MaintenanceRecordReadModel> specification =
+                (root, query, cb) -> {
+
+                    var predicates = new java.util.ArrayList<
+                            jakarta.persistence.criteria.Predicate>();
+
+                    if (registrationNumber != null
+                            && !registrationNumber.isBlank()) {
+
+                        predicates.add(cb.equal(
+                                cb.upper(root.get("registrationNumber")),
+                                registrationNumber.trim().toUpperCase()
+                        ));
+                    }
+
+                    if (start != null) {
+                        predicates.add(cb.greaterThanOrEqualTo(
+                                root.get("startDate"), start
+                        ));
+                    }
+
+                    if (endExclusive != null) {
+                        predicates.add(cb.lessThan(
+                                root.get("startDate"), endExclusive
+                        ));
+                    }
+
+                    if (componentCategory != null) {
+                        predicates.add(cb.equal(
+                                root.get("componentCategory"),
+                                componentCategory
+                        ));
+                    }
+
+                    return cb.and(predicates.toArray(
+                            new jakarta.persistence.criteria.Predicate[0]
+                    ));
+                };
+
+        Page<MaintenanceRecordReadModel> page =
+                maintenanceReadRepository.findAll(specification, pageable);
+
+        PagedModel<EntityModel<MaintenanceRecordReadModel>> pagedModel =
+                assembler.toModel(page, record -> {
+
+                    EntityModel<MaintenanceRecordReadModel> em =
+                            EntityModel.of(record);
+
+                    if ("SCHEDULED".equals(record.getStatus())) {
+                        em.add(
+                                linkTo(
+                                        methodOn(MaintenanceController.class)
+                                                .completeMaintenance(
+                                                        record.getMaintenanceRecordId(),
+                                                        null
+                                                )
+                                ).withRel("complete-this-record")
+                        );
+                    }
+
+                    return em;
+                });
 
         return ResponseEntity.ok(pagedModel);
     }
+
 
     @GetMapping("/records/ongoing")
     public ResponseEntity<CollectionModel<EntityModel<MaintenanceRecord>>> getOngoingMaintenances() {
@@ -182,4 +297,15 @@ public class MaintenanceController {
         List<EntityModel<LowStockAlertDTO>> resources = alerts.stream().map(EntityModel::of).collect(Collectors.toList());
         return ResponseEntity.ok(CollectionModel.of(resources, linkTo(methodOn(MaintenanceController.class).getLowStockAlerts()).withSelfRel()));
     }
+
+
+    @GetMapping("/records/read-model/{id}")
+    public ResponseEntity<MaintenanceRecordReadModel> getMaintenanceFromReadModel(
+            @PathVariable Long id) {
+
+        return maintenanceReadRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
 }

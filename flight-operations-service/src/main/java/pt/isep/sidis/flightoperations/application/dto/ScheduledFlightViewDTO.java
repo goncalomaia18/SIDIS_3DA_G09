@@ -1,9 +1,13 @@
+
 package pt.isep.sidis.flightoperations.application.dto;
 
+import java.util.UUID;
+
 public record ScheduledFlightViewDTO(
-        Long id,
+        UUID id,
         String routeId,
         String registrationNumber,
         String scheduledDateTime,
         String status
-) {}
+) {
+}

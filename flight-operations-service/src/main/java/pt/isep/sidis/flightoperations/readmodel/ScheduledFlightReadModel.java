@@ -6,13 +6,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "scheduled_flight_read_model")
 public class ScheduledFlightReadModel {
 
     @Id
-    private Long id;
+    private UUID id;
 
     private String routeId;
     private String aircraftRegistrationNumber;
@@ -23,7 +24,7 @@ public class ScheduledFlightReadModel {
     }
 
     public ScheduledFlightReadModel(
-            Long id,
+            UUID id,
             String routeId,
             String aircraftRegistrationNumber,
             LocalDateTime scheduledDateTime,
@@ -36,7 +37,7 @@ public class ScheduledFlightReadModel {
         this.status = status;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 

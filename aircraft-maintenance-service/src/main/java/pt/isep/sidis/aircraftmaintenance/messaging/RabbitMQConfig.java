@@ -69,4 +69,29 @@ public class RabbitMQConfig {
     public JacksonJsonMessageConverter jsonMessageConverter() {
         return new JacksonJsonMessageConverter();
     }
+
+
+    @Bean
+    public Queue maintenanceCompletedQueue(
+            @Value("${sidis.rabbitmq.maintenance.completed.queue}")
+            String queueName) {
+
+        return new Queue(queueName, true);
+    }
+
+    @Bean
+    public Binding maintenanceCompletedBinding(
+            @Qualifier("maintenanceCompletedQueue")
+            Queue maintenanceCompletedQueue,
+            TopicExchange sidisExchange) {
+
+        return BindingBuilder
+                .bind(maintenanceCompletedQueue)
+                .to(sidisExchange)
+                .with("maintenance.record.completed");
+    }
+
+
+
+
 }

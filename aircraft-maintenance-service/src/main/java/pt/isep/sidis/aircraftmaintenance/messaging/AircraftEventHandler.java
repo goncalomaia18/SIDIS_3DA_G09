@@ -9,7 +9,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 import pt.isep.sidis.aircraftmaintenance.events.AircraftRegisteredEvent;
 import pt.isep.sidis.aircraftmaintenance.events.AircraftStatusUpdatedEvent;
 import pt.isep.sidis.aircraftmaintenance.events.MaintenanceRecordCreatedEvent;
-
+import pt.isep.sidis.aircraftmaintenance.events.MaintenanceRecordCompletedEvent;
 @Component
 public class AircraftEventHandler {
 
@@ -36,4 +36,13 @@ public class AircraftEventHandler {
     public void onMaintenanceRecordCreated(MaintenanceRecordCreatedEvent event) {
         publisher.publishMaintenanceRecordCreated(event);
     }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void onMaintenanceRecordCompleted(
+            MaintenanceRecordCompletedEvent event) {
+
+        publisher.publishMaintenanceRecordCompleted(event);
+    }
+
 }

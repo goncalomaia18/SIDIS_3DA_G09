@@ -33,13 +33,13 @@ public class ScheduledFlightReadModelInitializer implements ApplicationRunner {
 
         for (ScheduledFlight flight : writeRepository.findAll()) {
 
-            if (readRepository.existsById(flight.getPk())) {
+            if (readRepository.existsById(flight.getFlightUuid())) {
                 continue;
             }
 
             ScheduledFlightReadModel readModel =
                     new ScheduledFlightReadModel(
-                            flight.getPk(),
+                            flight.getFlightUuid(),
                             flight.getRouteId(),
                             flight.getAircraftRegistrationNumber(),
                             flight.getScheduledDateTime(),

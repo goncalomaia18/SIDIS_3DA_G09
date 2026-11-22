@@ -18,12 +18,21 @@ public class ScheduledFlightProjectionHandler {
 
     public ScheduledFlightProjectionHandler(
             ScheduledFlightReadRepository readRepository) {
+
         this.readRepository = readRepository;
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void onScheduledFlightCreated(ScheduledFlightCreatedEvent event) {
+    public void onScheduledFlightCreated(
+            ScheduledFlightCreatedEvent event) {
+
+        if (readRepository.existsById(event.flightId())) {
+            System.out.println(
+                    "CQRS - FLIGHT ALREADY EXISTS: " + event.flightId()
+            );
+            return;
+        }
 
         ScheduledFlightReadModel readModel =
                 new ScheduledFlightReadModel(

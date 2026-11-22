@@ -171,7 +171,7 @@ public class ScheduledFlightService {
             ScheduledFlight flight) {
 
         return new ScheduledFlightViewDTO(
-                flight.getPk(),
+                flight.getFlightUuid(),
                 flight.getRouteId(),
                 flight.getAircraftRegistrationNumber(),
                 flight.getScheduledDateTime().toString(),

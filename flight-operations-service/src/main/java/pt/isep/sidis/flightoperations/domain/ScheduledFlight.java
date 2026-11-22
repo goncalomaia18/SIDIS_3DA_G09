@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import org.springframework.util.Assert;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 public class ScheduledFlight {
@@ -12,6 +13,9 @@ public class ScheduledFlight {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long pk;
+
+    @Column(nullable = false, unique = true, updatable = false)
+    private UUID flightUuid;
 
     @Version
     private Long version;
@@ -27,38 +31,44 @@ public class ScheduledFlight {
     @Column(nullable = false)
     private FlightStatus status;
 
-    // Identificador da rota gerida pelo Airports & Routes Service
     @Column(nullable = false)
     private String routeId;
 
-    // Matrícula da aeronave gerida pelo Aircraft & Maintenance Service
     @Column(nullable = false)
     private String aircraftRegistrationNumber;
 
     protected ScheduledFlight() {
     }
 
-    // Construtor com regras de negócio
     public ScheduledFlight(
             String routeId,
             String aircraftRegistrationNumber,
             LocalDateTime scheduledDateTime) {
 
-        Assert.hasText(routeId,
-                "A route is required to schedule a flight.");
+        Assert.hasText(
+                routeId,
+                "A route is required to schedule a flight."
+        );
 
-        Assert.hasText(aircraftRegistrationNumber,
-                "An aircraft is required to schedule a flight.");
+        Assert.hasText(
+                aircraftRegistrationNumber,
+                "An aircraft is required to schedule a flight."
+        );
 
-        Assert.notNull(scheduledDateTime,
-                "The scheduled date and time are required.");
+        Assert.notNull(
+                scheduledDateTime,
+                "The scheduled date and time are required."
+        );
 
         Assert.isTrue(
                 scheduledDateTime.isAfter(LocalDateTime.now()),
                 "Cannot schedule a flight in the past."
         );
 
+        this.flightUuid = UUID.randomUUID();
+
         this.routeId = routeId.trim();
+
         this.aircraftRegistrationNumber =
                 aircraftRegistrationNumber.trim().toUpperCase();
 
@@ -66,12 +76,22 @@ public class ScheduledFlight {
         this.status = FlightStatus.SCHEDULED;
     }
 
+    @PrePersist
+    private void ensureFlightUuid() {
+        if (flightUuid == null) {
+            flightUuid = UUID.randomUUID();
+        }
+    }
+
     public void updateStatus(FlightStatus newStatus) {
-        Assert.notNull(newStatus, "Flight status cannot be null.");
+        Assert.notNull(
+                newStatus,
+                "Flight status cannot be null."
+        );
+
         this.status = newStatus;
     }
 
-    // US212/US222: Trocar a aeronave associada ao voo
     public void changeAircraft(String newRegistrationNumber) {
         Assert.hasText(
                 newRegistrationNumber,
@@ -82,9 +102,12 @@ public class ScheduledFlight {
                 newRegistrationNumber.trim().toUpperCase();
     }
 
-    // Getters
     public Long getPk() {
         return pk;
+    }
+
+    public UUID getFlightUuid() {
+        return flightUuid;
     }
 
     public Long getVersion() {

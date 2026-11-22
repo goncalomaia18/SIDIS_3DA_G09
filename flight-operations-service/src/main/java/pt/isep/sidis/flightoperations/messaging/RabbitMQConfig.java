@@ -59,4 +59,27 @@ public class RabbitMQConfig {
     public JacksonJsonMessageConverter jsonMessageConverter() {
         return new JacksonJsonMessageConverter();
     }
+
+
+    @Bean
+    public Queue scheduledFlightQueue(
+            @Value("${sidis.rabbitmq.flight.queue}") String queueName) {
+
+        return new Queue(queueName, true);
+    }
+
+    @Bean
+    public Binding scheduledFlightBinding(
+            @Qualifier("scheduledFlightQueue") Queue scheduledFlightQueue,
+            TopicExchange sidisExchange) {
+
+        return BindingBuilder
+                .bind(scheduledFlightQueue)
+                .to(sidisExchange)
+                .with("flight.scheduled.created");
+    }
+
+
+
+
 }

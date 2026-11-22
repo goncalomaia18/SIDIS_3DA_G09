@@ -26,11 +26,21 @@ public class MaintenanceRecordProjectionHandler {
         }
 
         System.out.println("READ MODEL UPDATED - MAINTENANCE RECORD CREATED: " + event.registrationNumber());
-        repository.save(new MaintenanceRecordReadModel(
-                event.maintenanceRecordId(),
-                event.registrationNumber(),
-                event.aircraftModel(),
-                event.status()
-        ));
+        repository.save(
+                new MaintenanceRecordReadModel(
+                        event.maintenanceRecordId(),
+                        event.registrationNumber(),
+                        event.aircraftModel(),
+                        event.status(),
+                        event.description(),
+                        event.startDate(),
+                        event.expectedDuration(),
+                        event.completionNotes(),
+                        event.cost(),
+                        event.completionDate(),
+                        event.componentCategory(),
+                        event.templateId()
+                )
+        );
     }
 }

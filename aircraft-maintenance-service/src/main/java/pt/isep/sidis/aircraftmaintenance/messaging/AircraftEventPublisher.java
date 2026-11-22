@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import pt.isep.sidis.aircraftmaintenance.events.AircraftRegisteredEvent;
 import pt.isep.sidis.aircraftmaintenance.events.AircraftStatusUpdatedEvent;
 import pt.isep.sidis.aircraftmaintenance.events.MaintenanceRecordCreatedEvent;
+import pt.isep.sidis.aircraftmaintenance.events.MaintenanceRecordCompletedEvent;
 
 @Component
 public class AircraftEventPublisher {
@@ -41,4 +42,20 @@ public class AircraftEventPublisher {
                 event
         );
     }
+
+    public void publishMaintenanceRecordCompleted(
+            MaintenanceRecordCompletedEvent event) {
+
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.EXCHANGE_NAME,
+                "maintenance.record.completed",
+                event
+        );
+
+        System.out.println(
+                "RABBITMQ - MAINTENANCE COMPLETED PUBLISHED: "
+                        + event.maintenanceRecordId()
+        );
+    }
+
 }

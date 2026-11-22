@@ -8,6 +8,8 @@ import pt.isep.sidis.aircraftmaintenance.application.dto.*;
 import pt.isep.sidis.aircraftmaintenance.domain.*;
 import pt.isep.sidis.aircraftmaintenance.events.MaintenanceRecordCreatedEvent;
 import pt.isep.sidis.aircraftmaintenance.repositories.*;
+import org.springframework.transaction.annotation.Transactional;
+import pt.isep.sidis.aircraftmaintenance.events.MaintenanceRecordCompletedEvent;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -57,7 +59,7 @@ public class MaintenanceService {
         );
         return templateRepository.save(template);
     }
-
+    @Transactional
     public MaintenanceRecord registerMaintenance(RegisterMaintenanceDTO dto) {
         Aircraft aircraft = aircraftRepository.findByRegistrationNumber(new RegistrationNumber(dto.registrationNumber()))
                 .orElseThrow(() -> new IllegalArgumentException("Aircraft not found with registration: " + dto.registrationNumber()));
@@ -70,14 +72,24 @@ public class MaintenanceService {
         );
         MaintenanceRecord saved = recordRepository.save(record);
 
-        applicationEventPublisher.publishEvent(new MaintenanceRecordCreatedEvent(
-                UUID.randomUUID(),
-                saved.getPk(),
-                aircraft.getRegistrationNumber().number(),
-                aircraft.getAircraftModel().getModelName().name(),
-                saved.getStatus().name(),
-                Instant.now()
-        ));
+        applicationEventPublisher.publishEvent(
+                new MaintenanceRecordCreatedEvent(
+                        UUID.randomUUID(),
+                        saved.getPk(),
+                        aircraft.getRegistrationNumber().number(),
+                        aircraft.getAircraftModel().getModelName().name(),
+                        saved.getStatus().name(),
+                        saved.getDescription(),
+                        saved.getStartDate(),
+                        saved.getExpectedDuration(),
+                        saved.getCompletionNotes(),
+                        saved.getCost(),
+                        saved.getCompletionDate(),
+                        saved.getComponentCategory().name(),
+                        saved.getTemplate().getPk(),
+                        Instant.now()
+                )
+        );
 
         return saved;
     }
@@ -101,12 +113,36 @@ public class MaintenanceService {
                 .sum();
     }
 
-    public MaintenanceRecord completeMaintenance(Long recordId, CompleteMaintenanceDTO dto) {
+
+    @Transactional
+    public MaintenanceRecord completeMaintenance(
+            Long recordId,
+            CompleteMaintenanceDTO dto) {
+
         MaintenanceRecord record = recordRepository.findById(recordId)
-                .orElseThrow(() -> new IllegalArgumentException("Maintenance record not found with ID: " + recordId));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Maintenance record not found with ID: " + recordId
+                ));
+
         record.complete(dto.completionNotes());
-        return recordRepository.save(record);
+
+        MaintenanceRecord saved = recordRepository.save(record);
+
+        applicationEventPublisher.publishEvent(
+                new MaintenanceRecordCompletedEvent(
+                        UUID.randomUUID(),
+                        saved.getPk(),
+                        saved.getAircraft().getRegistrationNumber().number(),
+                        saved.getStatus().name(),
+                        saved.getCompletionNotes(),
+                        saved.getCompletionDate(),
+                        Instant.now()
+                )
+        );
+
+        return saved;
     }
+
 
     public Page<MaintenanceRecord> searchMaintenanceRecords(
             String registrationNumber, String fromDate, String toDate, ComponentCategory category, Pageable pageable) {

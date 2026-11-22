@@ -8,6 +8,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.transaction.event.TransactionPhase;
+import pt.isep.sidis.aircraftmaintenance.repositories.AircraftReadRepository;
+import pt.isep.sidis.aircraftmaintenance.readmodel.AircraftReadModel;
 
 
 import pt.isep.sidis.aircraftmaintenance.application.dto.*;
@@ -38,18 +40,22 @@ public class AircraftService {
     private final AircraftRepository aircraftRepository;
     private final AircraftPeerClient aircraftPeerClient;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final AircraftReadRepository aircraftReadRepository;
+
 
 
     public AircraftService(
             AircraftModelRepository modelRepository,
             AircraftRepository aircraftRepository,
             AircraftPeerClient aircraftPeerClient,
-            ApplicationEventPublisher applicationEventPublisher) {
+            ApplicationEventPublisher applicationEventPublisher,
+            AircraftReadRepository aircraftReadRepository) {
 
         this.modelRepository = modelRepository;
         this.aircraftRepository = aircraftRepository;
         this.aircraftPeerClient = aircraftPeerClient;
         this.applicationEventPublisher = applicationEventPublisher;
+        this.aircraftReadRepository = aircraftReadRepository;
     }
 
 
@@ -122,15 +128,22 @@ public class AircraftService {
 
         aircraftRepository.save(aircraft);
 
+
         AircraftRegisteredEvent event = new AircraftRegisteredEvent(
                 UUID.randomUUID(),
                 aircraft.getRegistrationNumber().number(),
                 model.getModelName().name(),
                 aircraft.getStatus().name(),
+                aircraft.getManufacturingDate(),
+                aircraft.getActualSeatingCapacity(),
+                model.getModelPhotoUrl(),
+                aircraft.getFeatures(),
+                model.getEngineType(),
                 Instant.now()
         );
 
         applicationEventPublisher.publishEvent(event);
+
     }
 
 
@@ -149,16 +162,26 @@ public class AircraftService {
         return mapToViewDTO(aircraft);
     }
 
+
     public AircraftViewDTO getAircraftByRegistrationNumber(String regNum) {
 
-        return aircraftRepository
-                .findByRegistrationNumber(
-                        new RegistrationNumber(regNum)
-                )
-                .map(this::mapToViewDTO)
-                .orElseGet(() ->
-                        aircraftPeerClient.findAircraftOnPeers(regNum)
-                );
+        AircraftReadModel aircraft = aircraftReadRepository
+                .findById(regNum.trim().toUpperCase())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Aircraft not found in Read Model: " + regNum
+                ));
+
+        return new AircraftViewDTO(
+                aircraft.getRegistrationNumber(),
+                aircraft.getModelName(),
+                aircraft.getManufacturingDate(),
+                aircraft.getSeatingCapacity(),
+                aircraft.getStatus(),
+                aircraft.getModelPhotoUrl(),
+                aircraft.getFeatures(),
+                aircraft.getEngineType()
+        );
     }
 
 
@@ -167,29 +190,31 @@ public class AircraftService {
             String status,
             Integer year) {
 
-        List<Aircraft> results;
-
-        if (year != null) {
-            results = aircraftRepository.findByManufacturingYear(year);
-
-        } else if (status != null && !status.isBlank()) {
-            results = aircraftRepository.findByStatus(
-                    AircraftStatus.valueOf(status.toUpperCase())
-            );
-
-        } else if (model != null && !model.isBlank()) {
-            results = aircraftRepository.findByModel_ModelName(
-                    new ModelName(model)
-            );
-
-        } else {
-            results = aircraftRepository.findAll();
-        }
-
-        return results.stream()
-                .map(this::mapToViewDTO)
-                .collect(Collectors.toList());
+        return aircraftReadRepository.findAll()
+                .stream()
+                .filter(aircraft ->
+                        model == null || model.isBlank()
+                                || aircraft.getModelName().equalsIgnoreCase(model))
+                .filter(aircraft ->
+                        status == null || status.isBlank()
+                                || aircraft.getStatus().equalsIgnoreCase(status))
+                .filter(aircraft ->
+                        year == null
+                                || (aircraft.getManufacturingDate() != null
+                                && aircraft.getManufacturingDate().getYear() == year))
+                .map(aircraft -> new AircraftViewDTO(
+                        aircraft.getRegistrationNumber(),
+                        aircraft.getModelName(),
+                        aircraft.getManufacturingDate(),
+                        aircraft.getSeatingCapacity(),
+                        aircraft.getStatus(),
+                        aircraft.getModelPhotoUrl(),
+                        aircraft.getFeatures(),
+                        aircraft.getEngineType()
+                ))
+                .toList();
     }
+
 
     @Transactional
     public Map<String, Object> updateAircraftStatusWithReport(

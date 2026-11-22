@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pt.isep.sidis.aircraftmaintenance.application.AircraftService;
 import pt.isep.sidis.aircraftmaintenance.application.dto.*;
+import pt.isep.sidis.aircraftmaintenance.readmodel.AircraftReadModel;
+import pt.isep.sidis.aircraftmaintenance.repositories.AircraftReadRepository;
 
 import java.util.List;
 
@@ -21,9 +23,14 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class AircraftController {
 
     private final AircraftService service;
+    private final AircraftReadRepository aircraftReadRepository;
 
-    public AircraftController(AircraftService service) {
+    public AircraftController(
+            AircraftService service,
+            AircraftReadRepository aircraftReadRepository) {
+
         this.service = service;
+        this.aircraftReadRepository = aircraftReadRepository;
     }
 
     /*US101 - Register an aircraft model*/
@@ -240,5 +247,17 @@ public class AircraftController {
                 service.getLocalAircraft(registrationNumber)
         );
     }
+
+
+    @GetMapping("/instances/read-model/{registrationNumber}")
+    public ResponseEntity<AircraftReadModel> getAircraftFromReadModel(
+            @PathVariable String registrationNumber) {
+
+        return aircraftReadRepository
+                .findById(registrationNumber)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
 
 }

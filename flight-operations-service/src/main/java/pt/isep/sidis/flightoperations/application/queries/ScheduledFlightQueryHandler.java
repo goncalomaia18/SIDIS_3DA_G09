@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import pt.isep.sidis.flightoperations.application.dto.RouteUtilizationDTO;
 import pt.isep.sidis.flightoperations.application.dto.ScheduledFlightViewDTO;
-import pt.isep.sidis.flightoperations.client.FlightPeerClient;
 import pt.isep.sidis.flightoperations.readmodel.ScheduledFlightReadModel;
 import pt.isep.sidis.flightoperations.repositories.ScheduledFlightReadRepository;
 
@@ -16,14 +15,10 @@ import java.util.List;
 public class ScheduledFlightQueryHandler {
 
     private final ScheduledFlightReadRepository readRepository;
-    private final FlightPeerClient flightPeerClient;
 
     public ScheduledFlightQueryHandler(
-            ScheduledFlightReadRepository readRepository,
-            FlightPeerClient flightPeerClient) {
-
+            ScheduledFlightReadRepository readRepository) {
         this.readRepository = readRepository;
-        this.flightPeerClient = flightPeerClient;
     }
 
     @Transactional(readOnly = true)
@@ -38,18 +33,11 @@ public class ScheduledFlightQueryHandler {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<ScheduledFlightViewDTO> getScheduledFlightsByAircraft(
             String registrationNumber) {
 
-        List<ScheduledFlightViewDTO> localFlights =
-                getLocalFlightsByAircraft(registrationNumber);
-
-        if (!localFlights.isEmpty()) {
-            return localFlights;
-        }
-
-        return flightPeerClient.findFlightsOnPeers(
-                registrationNumber.trim().toUpperCase());
+        return getLocalFlightsByAircraft(registrationNumber);
     }
 
     @Transactional(readOnly = true)

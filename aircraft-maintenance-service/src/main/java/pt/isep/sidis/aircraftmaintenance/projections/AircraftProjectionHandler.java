@@ -19,20 +19,34 @@ public class AircraftProjectionHandler {
         this.repository = repository;
     }
 
+
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onAircraftRegistered(AircraftRegisteredEvent event) {
+
         if (repository.existsById(event.registrationNumber())) {
             return;
         }
 
-        System.out.println("READ MODEL UPDATED - AIRCRAFT CREATED: " + event.registrationNumber());
-        repository.save(new AircraftReadModel(
+        AircraftReadModel readModel = new AircraftReadModel(
                 event.registrationNumber(),
                 event.modelName(),
-                event.status()
-        ));
+                event.status(),
+                event.manufacturingDate(),
+                event.seatingCapacity(),
+                event.modelPhotoUrl(),
+                event.features(),
+                event.engineType()
+        );
+
+        repository.save(readModel);
+
+        System.out.println(
+                "READ MODEL UPDATED - AIRCRAFT CREATED: "
+                        + event.registrationNumber()
+        );
     }
+
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
