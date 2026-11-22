@@ -1,0 +1,54 @@
+
+@startuml
+title AISafe - Logical Component View / CQRS
+
+left to right direction
+skinparam componentStyle rectangle
+skinparam shadowing false
+
+package "Flight Operations" {
+
+    [ScheduledFlightController] as Ctrl
+    [ScheduledFlightCommandHandler] as Cmd
+    [ScheduledFlightQueryHandler] as Query
+    [ScheduledFlightProjectionHandler] as Proj
+    [ScheduledFlightEventPublisher] as Pub
+    [ScheduledFlightRabbitMQConsumer] as Cons
+
+    [ScheduledFlightRepository] as WR
+    [ScheduledFlightReadRepository] as RR
+
+    database "H2 - write tables" as WDB
+    database "H2 - read tables" as RDB
+}
+
+component "Aircraft & Maintenance REST" as A
+component "Airports & Routes REST" as R
+
+queue "RabbitMQ\nsidis.events" as MQ
+
+Ctrl --> Cmd : Command
+Ctrl --> Query : Query
+
+Cmd --> WR : Save
+WR --> WDB : Persistencia
+
+Cmd --> A : REST
+Cmd --> R : REST
+
+Cmd ..> Proj : Evento apos commit
+Cmd ..> Pub : Evento de criacao
+
+Proj --> RR : Projecao local
+
+Pub --> MQ : Publish
+
+MQ --> Cons : Consume
+Cons --> RR : Projecao recebida
+
+Query --> RR : Read
+RR --> RDB : Consulta
+
+
+
+@enduml

@@ -1,0 +1,53 @@
+@startuml
+title AISafe - Flight Operations - Domain and CQRS Classes
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+class ScheduledFlight {
+ - id : Long
+ - flightUuid : UUID
+ - routeId : String
+ - registrationNumber : String
+ - scheduledDateTime : LocalDateTime
+}
+class ScheduledFlightReadModel {
+ - id : UUID
+ - routeId : String
+ - aircraftRegistrationNumber : String
+ - scheduledDateTime : LocalDateTime
+ - status : String
+}
+class ScheduledFlightCreatedEvent <<record>> {
+ + eventId : UUID
+ + flightId : UUID
+ + routeId : String
+ + registrationNumber : String
+ + scheduledDateTime : LocalDateTime
+ + status : String
+}
+interface ScheduledFlightRepository
+interface ScheduledFlightReadRepository {
+ + existsById(id : UUID) : boolean
+ + save(model : ScheduledFlightReadModel)
+}
+class ScheduledFlightCommandHandler
+class ScheduledFlightQueryHandler
+class ScheduledFlightProjectionHandler {
+ + onScheduledFlightCreated(event)
+}
+class ScheduledFlightRabbitMQConsumer {
+ + handleScheduledFlightCreated(event)
+}
+class ScheduledFlightEventPublisher {
+ + publishScheduledFlightCreated(event)
+}
+ScheduledFlightRepository ..> ScheduledFlight
+ScheduledFlightReadRepository ..> ScheduledFlightReadModel
+ScheduledFlightCommandHandler --> ScheduledFlightRepository
+ScheduledFlightCommandHandler ..> ScheduledFlightCreatedEvent
+ScheduledFlightQueryHandler --> ScheduledFlightReadRepository
+ScheduledFlightProjectionHandler --> ScheduledFlightReadRepository
+ScheduledFlightProjectionHandler ..> ScheduledFlightCreatedEvent
+ScheduledFlightRabbitMQConsumer --> ScheduledFlightReadRepository
+ScheduledFlightRabbitMQConsumer ..> ScheduledFlightCreatedEvent
+ScheduledFlightEventPublisher ..> ScheduledFlightCreatedEvent
+@enduml

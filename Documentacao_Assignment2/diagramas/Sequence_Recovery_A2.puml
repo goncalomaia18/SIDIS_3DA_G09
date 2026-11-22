@@ -1,0 +1,53 @@
+
+@startuml
+title AISafe - Sequence - Offline Consumer and Recovery
+
+hide footbox
+autonumber
+
+actor "Operador" as O
+participant "Flight Operations :8080" as F0
+queue "RabbitMQ exchange\nsidis.events" as EX
+queue "Durable queue\nflight.scheduled.8082" as Q2
+participant "Flight Operations :8082" as F2
+database "H2 read :8082" as DB
+
+O -> F2 : Stop instance 8082
+
+note over F2
+Consumer offline
+end note
+
+O -> F0 : Create flight UUID X
+F0 -> EX : Publish flight.scheduled.created(X)
+EX -> Q2 : Route event X
+
+note over Q2
+Message pending while consumer is offline
+(as observed in the test).
+end note
+
+... Restart instance 8082 ...
+
+O -> F2 : Start instance 8082
+Q2 -> F2 : Deliver pending event X
+
+F2 -> DB : existsById(X)
+DB --> F2 : true / false
+
+alt UUID X not present
+    F2 -> DB : save(read model X)
+    DB --> F2 : Saved
+else UUID X already present
+    F2 -> F2 : Skip duplicate
+end
+
+F2 --> Q2 : Processing completed
+
+O -> F2 : Query flight X
+F2 -> DB : Read projection
+DB --> F2 : UUID X
+F2 --> O : Flight X available
+
+
+@enduml

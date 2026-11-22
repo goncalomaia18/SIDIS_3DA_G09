@@ -1,0 +1,17 @@
+
+@startuml
+title AISafe - System Context (Assignment 2)
+
+left to right direction
+skinparam shadowing false
+
+actor "Administrador" as A
+actor "Operador" as O
+
+rectangle "AISafe Flight Management System\n<<Software System>>" as S
+
+A --> S : Gestão e manutenção,\naeroportos e rotas
+O --> S : Agendar e consultar voos
+
+
+@enduml

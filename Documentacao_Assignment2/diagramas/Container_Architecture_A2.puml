@@ -1,0 +1,49 @@
+
+@startuml
+title AISafe - Container Architecture (Assignment 2)
+
+left to right direction
+skinparam shadowing false
+skinparam componentStyle rectangle
+
+actor "Cliente REST" as C
+
+package "AISafe" {
+
+    component "Flight Operations\n8080 / 8082\nSpring Boot" as F
+
+    component "Aircraft & Maintenance\n8081 / 8085\nSpring Boot" as A
+
+    component "Airports & Routes\n8083 / 8084\nSpring Boot" as R
+
+    database "H2 Flight\npor instancia" as FD
+
+    database "H2 Aircraft\npor instancia" as AD
+
+    database "H2 Airports\npor instancia" as RD
+
+    queue "RabbitMQ\nsidis.events\nTopic Exchange" as MQ
+}
+
+C --> F : HTTP/JSON
+C --> A : HTTP/JSON
+C --> R : HTTP/JSON
+
+F --> A : REST / validacao
+F --> R : REST / validacao
+
+F --> FD : JPA / CQRS
+A --> AD : JPA / CQRS
+R --> RD : JPA / CQRS
+
+A --> MQ : Eventos de aeronave\ne manutencao
+R --> MQ : Eventos de rota
+F --> MQ : flight.scheduled.created
+
+MQ ..> F : Eventos subscritos
+MQ ..> A : Eventos subscritos
+MQ ..> R : Eventos subscritos
+
+
+
+@enduml

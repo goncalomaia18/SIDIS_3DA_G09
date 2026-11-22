@@ -1,0 +1,36 @@
+@startuml
+title AISafe - Development View (logical modules)
+left to right direction
+skinparam componentStyle rectangle
+skinparam shadowing false
+package "SIDIS_3DA_G09" {
+ package "flight-operations-service" {
+  [api] as FA
+  [application / commands] as FC
+  [application / queries] as FQ
+  [application / projections] as FP
+  [domain] as FD
+  [readmodel] as FR
+  [repositories] as FRE
+  [messaging] as FM
+  [client] as FCL
+  FA --> FC
+  FA --> FQ
+  FC --> FD
+  FC --> FRE
+  FC --> FCL
+  FQ --> FRE
+  FP --> FRE
+  FM --> FRE
+  FRE --> FR
+ }
+ package "aircraft-maintenance-service" {
+  [API / Application / Domain / Persistence] as A
+ }
+ package "airports-routes-service" {
+  [API / Commands / Queries / Domain / Persistence] as R
+ }
+}
+FCL ..> A : HTTP REST
+FCL ..> R : HTTP REST
+@enduml

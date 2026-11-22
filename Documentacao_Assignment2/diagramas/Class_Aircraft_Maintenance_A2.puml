@@ -1,0 +1,28 @@
+@startuml
+title AISafe - Aircraft and Maintenance - Conceptual Class View
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+class Aircraft
+class AircraftModel
+class MaintenanceTemplate
+class MaintenanceRecord
+class MaintenancePart
+class AircraftReadModel <<CQRS Read Model>>
+class MaintenanceRecordReadModel <<CQRS Read Model>>
+class AircraftService
+class MaintenanceService
+interface AircraftRepository
+interface AircraftModelRepository
+interface MaintenanceTemplateRepository
+interface MaintenanceRecordRepository
+interface MaintenancePartRepository
+Aircraft --> AircraftModel : Modelo
+MaintenanceRecord --> Aircraft : Aeronave
+MaintenanceRecord --> MaintenanceTemplate : Template
+MaintenanceRecord --> MaintenancePart : Pecas
+AircraftService --> AircraftRepository
+AircraftService --> AircraftModelRepository
+MaintenanceService --> MaintenanceTemplateRepository
+MaintenanceService --> MaintenanceRecordRepository
+MaintenanceService --> MaintenancePartRepository
+@enduml

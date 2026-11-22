@@ -1,0 +1,53 @@
+
+@startuml
+title AISafe - Sequence - Create Scheduled Flight
+
+hide footbox
+autonumber
+
+actor "Cliente" as C
+participant "Flight Operations\nCommand Handler" as H
+participant "Aircraft API" as A
+participant "Routes API" as R
+database "H2 Write Model" as W
+participant "Application Event" as E
+participant "Local Projection" as P
+participant "Event Publisher" as Pub
+queue "RabbitMQ" as MQ
+
+C -> H : POST / create scheduled flight
+
+H -> A : Validate aircraft (REST)
+A --> H : Result
+
+H -> R : Validate route (REST)
+R --> H : Result
+
+alt Validations succeed
+
+    H -> H : Create flight / generate UUID
+
+    H -> W : Save scheduled flight
+    W --> H : Commit
+
+    H -> E : ScheduledFlightCreatedEvent
+
+    par Local read projection
+        E -> P : AFTER_COMMIT event
+        P -> P : existsById() then save()
+
+    else Asynchronous publication
+        E -> Pub : Publish event
+        Pub -> MQ : flight.scheduled.created
+    end
+
+    H --> C : Creation result
+
+else Validation fails
+
+    H --> C : Error response
+
+end
+
+
+@enduml

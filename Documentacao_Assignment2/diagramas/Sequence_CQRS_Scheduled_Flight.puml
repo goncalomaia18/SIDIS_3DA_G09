@@ -1,0 +1,58 @@
+
+@startuml
+title AISafe - Sequence - CQRS Replication 8080 to 8082
+
+hide footbox
+autonumber
+
+actor "Cliente" as C
+participant "Flight Operations :8080" as F0
+database "H2 Write Model :8080" as W0
+participant "Local Projection :8080" as P0
+database "H2 Read Model :8080" as R0
+queue "RabbitMQ\nsidis.events" as MQ
+participant "Consumer :8082" as F2
+database "H2 Read Model :8082" as R2
+
+C -> F0 : Create scheduled flight
+
+F0 -> W0 : Persist flight UUID X
+W0 --> F0 : Commit
+
+par Local projection
+
+    F0 -> P0 : ScheduledFlightCreatedEvent(X)
+    P0 -> R0 : existsById(X)
+    R0 --> P0 : true / false
+
+    alt UUID X not found
+        P0 -> R0 : save(read model X)
+        R0 --> P0 : Saved
+    else UUID X already exists
+        P0 -> P0 : Skip duplicate
+    end
+
+else RabbitMQ propagation
+
+    F0 -> MQ : Publish event(X)
+    MQ -> F2 : Deliver event(X)
+
+    F2 -> R2 : existsById(X)
+    R2 --> F2 : true / false
+
+    alt UUID X not found
+        F2 -> R2 : save(read model X)
+        R2 --> F2 : Saved
+    else UUID X already exists
+        F2 -> F2 : Ignore duplicate
+    end
+
+end
+
+C -> F2 : Query scheduled flight
+F2 -> R2 : Read projection
+R2 --> F2 : Flight UUID X
+F2 --> C : Same flight UUID X
+
+
+@enduml

@@ -1,0 +1,65 @@
+
+@startuml
+title AISafe - Deployment - Six Spring Boot Instances
+
+skinparam shadowing false
+skinparam linetype ortho
+
+node "Host de desenvolvimento" {
+
+    node "Flight Operations" {
+        artifact "Spring Boot :8080" as F0
+        database "H2 file\nflightdb_8080" as D0
+
+        artifact "Spring Boot :8082" as F2
+        database "H2 file\nflightdb_8082" as D2
+    }
+
+    node "Aircraft & Maintenance" {
+        artifact "Spring Boot :8081" as A1
+        database "H2 file\naircraftdb_8081" as DA1
+
+        artifact "Spring Boot :8085" as A5
+        database "H2 file\naircraftdb_8085" as DA5
+    }
+
+    node "Airports & Routes" {
+        artifact "Spring Boot :8083" as R3
+        database "H2 file\nairportsdb_8083" as DR3
+
+        artifact "Spring Boot :8084" as R4
+        database "H2 file\nairportsdb_8084" as DR4
+    }
+}
+
+node "RabbitMQ (host externo configurado)" as MQ {
+
+    queue "Topic exchange\nsidis.events" as EX
+
+    queue "flight.scheduled.8080" as Q0
+    queue "flight.scheduled.8082" as Q2
+}
+
+F0 --> D0 : JDBC
+F2 --> D2 : JDBC
+
+A1 --> DA1 : JDBC
+A5 --> DA5 : JDBC
+
+R3 --> DR3 : JDBC
+R4 --> DR4 : JDBC
+
+F0 --> EX : AMQP publish
+F2 --> EX : AMQP publish
+
+EX --> Q0 : Binding
+EX --> Q2 : Binding
+
+Q0 --> F0 : AMQP consume
+Q2 --> F2 : AMQP consume
+
+F0 ..> A1 : REST
+F0 ..> R3 : REST
+
+
+@enduml

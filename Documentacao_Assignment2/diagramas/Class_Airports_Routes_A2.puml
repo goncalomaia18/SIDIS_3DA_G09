@@ -1,0 +1,18 @@
+@startuml
+title AISafe - Airports and Routes - Conceptual Class View
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+class Airport
+class Route
+class RouteReadModel <<CQRS Read Model>>
+class RouteCommandHandler
+class RouteQueryHandler
+interface "Route Repository" as RR
+interface "Route Read Repository" as RRR
+Route --> Airport : Origem
+Route --> Airport : Destino
+RouteCommandHandler --> RR : Escrita
+RR ..> Route
+RouteQueryHandler --> RRR : Consulta
+RRR ..> RouteReadModel
+@enduml
